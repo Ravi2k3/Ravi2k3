@@ -18,7 +18,7 @@ Hello, fellow architects of tomorrow! If you've navigated through the cosmic web
 
 ---
 
-## 🌈 Technologies & Tools 🌈
+## 🛠️ Technologies & Tools 🛠️
 
 - **Languages**: `Python`, `JavaScript`, `HTML`, `CSS`, `C++`
 - **Frameworks**: `React`
