@@ -42,7 +42,7 @@ Hello, fellow architects of tomorrow! If you've navigated through the cosmic web
 ## 🛸 How to Reach Me 🛸
 
 - **Email**: [2003.ravikrishna@gmail.com](mailto:2003.ravikrishna@gmail.com)
-- **LinkedIn**: [Ravi Krishna's LinkedIn Profile](https://www.linkedin.com/in/ravi-krishna-661704234/)
+- **LinkedIn**: (https://www.linkedin.com/in/ravi-krishna-661704234/)
 
 ---
 
