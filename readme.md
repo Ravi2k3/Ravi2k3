@@ -56,4 +56,3 @@ The digital scroll is yet to be fully written; it awaits the ink of our relentle
 
 ---
 
-Feel free to adjust the README to make it even more aligned with your unique journey and aspirations. This should effectively capture your spirit of innovation and ambition.
