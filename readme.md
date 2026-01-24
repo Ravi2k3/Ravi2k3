@@ -1,124 +1,89 @@
-<div align="center">
+# Ravi Krishna
+### Product & AI Engineer | System Architect
 
-<img src="https://capsule-render.vercel.app/api?type=waving&color=0:000000,100:0f0c29&height=180&section=header&text=RAVI%20KRISHNA&fontSize=60&fontColor=00ffe1&fontAlign=50&animation=fadeIn&desc=PRODUCT%20%C3%97%20AI%20ENGINEER&descSize=20&descAlign=50" />
-
-<a href="https://git.io/typing-svg"><img src="https://readme-typing-svg.demolab.com?font=JetBrains+Mono&weight=700&size=22&duration=2500&pause=1000&color=00FFE1&center=true&vCenter=true&multiline=true&width=700&height=70&lines=SYSTEM_ARCHITECT_OF_UNCOOPERATIVE_MACHINES;BRIDGING_TECHNICAL_DEPTH_AND_PRODUCT_VISION;STATUS%3A_SHIPPING_TO_PROD" alt="Typing SVG" /></a>
-
-<br/>
-
-[![LinkedIn](https://img.shields.io/badge/LINKEDIN-CONNECT-0a66c2?style=for-the-badge&logo=linkedin)](https://www.linkedin.com/in/ravi-krishna-661704234/)
-[![Email](https://img.shields.io/badge/EMAIL-INITIATE_UPLINK-EA4335?style=for-the-badge&logo=gmail)](mailto:2003.ravikrishna@gmail.com)
-[![Resume](https://img.shields.io/badge/RESUME-ACCESS_FILE-FF5722?style=for-the-badge&logo=read-the-docs)](YOUR_RESUME_LINK_HERE)
-
-</div>
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-0077B5?style=flat&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/ravi-krishna-661704234/)
+[![Email](https://img.shields.io/badge/Email-Contact_Me-D14836?style=flat&logo=gmail&logoColor=white)](mailto:2003.ravikrishna@gmail.com)
 
 ---
 
-## ▓▒░ SYSTEM KERNEL ░▒▓
+## 👨‍💻 About Me
+I am a **Product & AI Engineer** based in Bangalore, specializing in building high-throughput systems and agentic AI architectures. I bridge the gap between complex technical implementation and product vision.
 
-> **"Reality is just another system with undocumented APIs."**
+My focus is on **shipping production-grade AI**: from optimizing single-GPU inference for 200+ video streams to designing dual-layer validation systems that prevent LLM hallucinations.
 
-I am a **Product & AI Engineer** based in Bangalore. I don't just write code; I engineer outcomes. Whether it's forcing a single GPU to handle 200+ video streams or designing dual-layer validation systems to stop LLM hallucinations, I build systems that survive contact with the real world.
-
-| **METRIC** | **VALUE** | **DESCRIPTION** |
-|:---:|:---:|:---|
-| **PRODUCT INSTINCT** | `██████████░` | Translating complex tech into user value |
-| **SYSTEM ARCHITECTURE** | `███████████` | High-throughput, async-first design |
-| **RESOURCEFULNESS** | `███████████` | *See: The RTX 3090 Incident* |
-| **GPA** | `8.56 / 10` | BE in ECE (Nitte Meenakshi Institute) |
+* **Core Focus:** AI Agents, Computer Vision, High-Performance Systems.
+* **Education:** B.E. in Electronics & Communication Engineering (8.56 GPA).
 
 ---
 
-## ▓▒░ ARSENAL ░▒▓
+## 🛠 Technical Skills
 
-<div align="center">
-
-| **NEURAL (AI/ML)** | **CORE (LANGS)** | **INFRASTRUCTURE** |
-|:---:|:---:|:---:|
-| ![PyTorch](https://img.shields.io/badge/PyTorch-%23EE4C2C.svg?style=flat-square&logo=PyTorch&logoColor=white) ![LangChain](https://img.shields.io/badge/LangChain-1C3C3C?style=flat-square&logo=chainlink&logoColor=white) | ![Python](https://img.shields.io/badge/python-3670A0?style=flat-square&logo=python&logoColor=ffdd54) ![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=flat-square&logo=typescript&logoColor=white) | ![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=flat-square&logo=docker&logoColor=white) ![Kubernetes](https://img.shields.io/badge/kubernetes-%23326ce5.svg?style=flat-square&logo=kubernetes&logoColor=white) |
-| ![CrewAI](https://img.shields.io/badge/CrewAI-FF4F00?style=flat-square) ![OpenAI](https://img.shields.io/badge/OpenAI-412991?style=flat-square&logo=openai&logoColor=white) | ![C++](https://img.shields.io/badge/c++-%2300599C.svg?style=flat-square&logo=c%2B%2B&logoColor=white) ![React](https://img.shields.io/badge/react-%2320232a.svg?style=flat-square&logo=react&logoColor=%2361DAFB) | ![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=flat-square&logo=fastapi) ![Git](https://img.shields.io/badge/git-%23F05033.svg?style=flat-square&logo=git&logoColor=white) |
-
-</div>
+| Domain | Technologies |
+| :--- | :--- |
+| **Languages** | Python, TypeScript, C++, C, JavaScript, SQL |
+| **AI & ML** | PyTorch, LangChain, CrewAI, OpenCV, DLIB, LLM Architectures |
+| **Web & API** | FastAPI, Flask, React, Vite, Node.js |
+| **Infrastructure** | Docker, Kubernetes, Git, GitHub Actions |
 
 ---
 
-## ▓▒░ DEPLOYMENT LOG (Experience) ░▒▓
+## 🚀 Featured Projects
 
-### **[2023 - 2025] AUTOMA | Software Automation Lead**
-* **Target:** Secure customer support automation.
-* **Outcome:** Built a FastAPI platform with dual-layer validation that **reduced data leakage by 95%** across 100+ prompt injection tests.
-* **Innovation:** Designed "Workflow Mode" for the MoonLight platform—a dynamic routing system where agents evaluate user clauses at runtime.
+### 🌙 **MoonLight Platform (Open Source)**
+* **Role:** Lead Architect
+* **Impact:** **3,400+ Downloads**.
+* **Description:** An async-first AI agent framework. Designed a "Workflow Mode" utilizing dynamic node-selection algorithms, allowing agents to evaluate user-defined clauses at runtime.
+* *Stack: Python, AsyncIO, LLM*
 
-### **[2025] ANTARES LIFE CYCLE SOLUTIONS | Technical Engineer (Contract)**
-* **Target:** Industrial IoT Visualization.
-* **Outcome:** Developed a real-time React/TypeScript dashboard for complex plant telemetry.
-* **Impact:** Tool directly accelerated product sales discussions with Director-level stakeholders.
+### 🛡️ **Oshley (Enterprise Support AI)**
+* **Role:** Co-Designer
+* **Impact:** Reduced data leakage/PII exposure by **95%**.
+* **Description:** Implemented a secure "Generator-Validator" dual-layer architecture to sanitize outputs and prevent prompt injection in customer support automation.
+* *Stack: FastAPI, React, Custom LLM Guardrails*
 
-### **[2023] SVADHRUTHI (World Diabetes Forum) | Technical Lead**
-* **Target:** Personalized health management pipeline.
-* **Outcome:** Supported **1,000+ concurrent users** with zero downtime and 94% clinical recommendation accuracy using a Flask-based RAG pipeline.
-
----
-
-## ▓▒░ BLACK PROJECTS ░▒▓
-
-| CODE NAME | CLASS | SPECS | STATUS |
-|:----------|:------|:------|:-------|
-| **🌙 MOONLIGHT** | `AGENT SDK` | Self-planning async agent framework. **3.4k+ Downloads**. Prioritized action-oriented workflows generated by LLM. | `OPEN SOURCE` |
-| **🛡 OSHLEY** | `DEFENSE` | Anti-hallucination support system. Implements **Generator-Validator architecture** to scrub PII. | `VALIDATED` |
-| **👁 FACESPACE** | `VISION` | **200+ video streams on a single GPU**. Bypassed NVIDIA container restrictions using custom multiprocessing. | `OPTIMIZED` |
-| **⚓ NOUAR** | `NAVAL` | Naval automation system using Raspberry Pi + C++. **Patent Pending**. Demoed to Indian Navy Captain. | `CLASSIFIED` |
+### 👁️ **FaceSpace (High-Throughput Vision)**
+* **Role:** System Engineer
+* **Impact:** **200+ concurrent video streams on a single GPU**.
+* **Description:** Developed a novel multiprocessing technique to bypass standard container restrictions, maximizing hardware throughput for real-time vision processing.
+* *Stack: Kubernetes, Python, DLIB*
 
 ---
 
-## ▓▒░ SYSTEM OVERRIDES (Leadership & Stories) ░▒▓
+## 💼 Professional Experience
 
-<details>
-<summary><b>Case File 001: The RTX 3090 Heist (Resourcefulness)</b></summary>
-<br>
-When our proposal for a ₹3.5L RTX 4090 was rejected due to budget cuts, I didn't scale down the project. I physically scouted the campus and located an underutilized RTX 3090 in a separate R&D lab. I walked into the administrator's office, demoed our <i>FaceSpace</i> vision system on a laptop, and proved its value for attendance monitoring. 
+**Software Automation Lead | Automa**
+*Bangalore | Apr 2023 – Jun 2025*
+* Built a secure, asynchronous customer-support automation platform serving enterprise requirements.
+* Created a WhatsApp-LLM bridge using Meta API and Twilio, converting unstructured messages into structured agent contexts for real-time responses.
 
-<b>Result:</b> I walked out with the RTX 3090 assigned to our team for 2 years.
-</details>
+**Technical Engineer (Contract) | ANTARES Life Cycle Solutions**
+*Bangalore | Feb 2025 – Jul 2025*
+* Developed a real-time React/TypeScript dashboard to visualize complex industrial IoT telemetry.
+* The tool was directly utilized by the COO and Plant Managers to accelerate sales cycles.
 
-<details>
-<summary><b>Case File 002: The Berghain Protocol (Problem Solving)</b></summary>
-<br>
-<b>Challenge:</b> Berghain Bouncer Challenge (AI Simulation).
-<br>
-<b>Rank:</b> Top 5% (70th / 1400 finalists).
-<br>
-<b>Method:</b> While others trained massive models, I used pure <b>Linear Programming</b> and adaptive heuristics to predict rejection probabilities. Sometimes, the simplest algorithm is the deadliest.
-</details>
-
-<details>
-<summary><b>Case File 003: The Attendance Crisis (Leadership)</b></summary>
-<br>
-Leading a 2-person team on an Interactive Learning bot, we faced critical delays. I identified the root causes: one member had attendance issues, the other had technical blockers. I drafted a formal internship offer letter to incentivize attendance and pair-programmed directly to clear the blockers. We delivered on time.
-</details>
+**Technical Lead | SvaDhruthi (World Diabetes Forum)**
+*Remote | Aug 2023 – Sep 2023*
+* Architected a Flask-based RAG pipeline supporting **1,000+ concurrent users**.
+* Achieved **94% clinical recommendation accuracy** via a dual-agent feedback loop.
 
 ---
 
-## ▓▒░ CORE DIRECTIVES ░▒▓
+## 🏆 Key Achievements & Leadership
 
-```javascript
-const CORE_VALUES = {
-  optimization: "If it is slow, it must be parallelized.",
-  resilience: "If it can hallucinate, it must verify itself.",
-  ambition: "If it is impossible, it is next.",
-  learning: "Always shipping, always upgrading."
-};
-
-```
+* **Berghain Bouncer Challenge (Top 5%):** Ranked **70th out of 1,400 finalists** (150k+ entries). Solved a complex resource allocation problem using Linear Programming and adaptive heuristics rather than brute-force ML.
+* **Resource Management:** Successfully secured critical hardware (RTX 3090) for university research by identifying underutilized assets in other departments and demonstrating immediate value to administration via a working prototype.
+* **Team Leadership:** Led a 2-person development team to deliver an Interactive Learning Bot on time by implementing structured mentorship and resolving attendance bottlenecks.
 
 ---
 
-<div align="center">
+## 📜 Certifications
 
-### ▓▒░ END OF LINE ░▒▓
+* **Machine Learning Specialization** - Stanford (Coursera)₹
+* **Google Project Management** - Google
+* **Scientific Computing with Python** - FreeCodeCamp
 
-### [ INITIATE COLLABORATION PROTOCOL ]
+---
 
-[EMAIL](mailto:2003.ravikrishna@gmail.com) • [LINKEDIN](https://www.linkedin.com/in/ravi-krishna-661704234/)
-
+<div align="left">
+  <i>Open to Product Manager (APM) and Technical Engineering roles.</i>
 </div>
