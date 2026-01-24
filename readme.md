@@ -1,116 +1,124 @@
 <div align="center">
-<img src="https://capsule-render.vercel.app/api?type=rect&color=0:0f172a,100:020617&height=110&section=header&text=RAVI%20KRISHNA&fontSize=40&fontColor=e5e7eb" />
 
-### Product & AI Engineer
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:000000,100:0f0c29&height=180&section=header&text=RAVI%20KRISHNA&fontSize=60&fontColor=00ffe1&fontAlign=50&animation=fadeIn&desc=PRODUCT%20%C3%97%20AI%20ENGINEER&descSize=20&descAlign=50" />
 
-Building and shipping AI systems. Focused on reliability, performance, and product usability.
+<a href="https://git.io/typing-svg"><img src="https://readme-typing-svg.demolab.com?font=JetBrains+Mono&weight=700&size=22&duration=2500&pause=1000&color=00FFE1&center=true&vCenter=true&multiline=true&width=700&height=70&lines=SYSTEM_ARCHITECT_OF_UNCOOPERATIVE_MACHINES;BRIDGING_TECHNICAL_DEPTH_AND_PRODUCT_VISION;STATUS%3A_SHIPPING_TO_PROD" alt="Typing SVG" /></a>
 
-Bangalore, India
+<br/>
 
-</div>
-
----
-
-## Overview
-
-I work on production AI systems across agents, vision, and automation. My work usually sits between product design and engineering: shaping what gets built, then building it.
-
-I care about:
-- Making LLM systems safer and more predictable
-- Async and high-throughput systems
-- Product flows that reduce user and operator error
-- Systems that survive real usage, not just demos
-
----
-
-## Current Focus
-
-```
-
-LLM Reliability        ███████████████░░░░   82%
-High Throughput Systems █████████████████░░   90%
-Product Engineering    ██████████████████░   92%
-Infra & Deployment     ███████████████░░░░   80%
-
-```
-
----
-
-## Selected Work (Condensed)
-
-```
-
-• AI agent framework used by ~3.8k developers
-• Customer-support LLM system with ~95% reduction in data leakage via multi-stage validation
-• Vision system handling 200+ concurrent streams on a single GPU
-• WhatsApp ↔ LLM integration for production-style agent pipelines
-• Naval automation system demoed on-ship (joint team effort)
-
-```
-
----
-
-## How I Build
-
-```
-
-> Start from the user and failure modes
-> Design the flow before the architecture
-> Add safety gates before adding features
-> If it's slow, parallelize it
-> If it breaks easily, it isn't done
-
-```
-
----
-
-## Tools
-
-<div align="center">
-
-![Python](https://img.shields.io/badge/Python-020617?style=for-the-badge&logo=python&logoColor=e5e7eb)
-![TypeScript](https://img.shields.io/badge/TypeScript-020617?style=for-the-badge&logo=typescript&logoColor=e5e7eb)
-![C++](https://img.shields.io/badge/C++-020617?style=for-the-badge&logo=c%2B%2B&logoColor=e5e7eb)
-![FastAPI](https://img.shields.io/badge/FastAPI-020617?style=for-the-badge&logo=fastapi&logoColor=e5e7eb)
-![React](https://img.shields.io/badge/React-020617?style=for-the-badge&logo=react&logoColor=e5e7eb)
-![Docker](https://img.shields.io/badge/Docker-020617?style=for-the-badge&logo=docker&logoColor=e5e7eb)
-![Kubernetes](https://img.shields.io/badge/Kubernetes-020617?style=for-the-badge&logo=kubernetes&logoColor=e5e7eb)
-![PyTorch](https://img.shields.io/badge/PyTorch-020617?style=for-the-badge&logo=pytorch&logoColor=e5e7eb)
+[![LinkedIn](https://img.shields.io/badge/LINKEDIN-CONNECT-0a66c2?style=for-the-badge&logo=linkedin)](https://www.linkedin.com/in/ravi-krishna-661704234/)
+[![Email](https://img.shields.io/badge/EMAIL-INITIATE_UPLINK-EA4335?style=for-the-badge&logo=gmail)](mailto:2003.ravikrishna@gmail.com)
+[![Resume](https://img.shields.io/badge/RESUME-ACCESS_FILE-FF5722?style=for-the-badge&logo=read-the-docs)](YOUR_RESUME_LINK_HERE)
 
 </div>
 
 ---
 
-## A Few Verifiable Points
+## ▓▒░ SYSTEM KERNEL ░▒▓
 
-```
+> **"Reality is just another system with undocumented APIs."**
 
-• Ranked 70 / 1400 finalists in the Berghain Bouncer Challenge (150k+ total entries), solved solo using LP + heuristics
-• Designed LLM systems with multi-stage validation that cut data leakage by ~95%
-• Built GPU multiprocessing pipeline supporting 200+ live streams
-• Regularly presented technical + product demos to enterprise and investors
+I am a **Product & AI Engineer** based in Bangalore. I don't just write code; I engineer outcomes. Whether it's forcing a single GPU to handle 200+ video streams or designing dual-layer validation systems to stop LLM hallucinations, I build systems that survive contact with the real world.
 
-```
-
----
-
-## Education
-
-**B.E. in Electronics & Communication Engineering**  
-Nitte Meenakshi Institute of Technology, Bangalore  
-GPA: 8.56 / 10
+| **METRIC** | **VALUE** | **DESCRIPTION** |
+|:---:|:---:|:---|
+| **PRODUCT INSTINCT** | `██████████░` | Translating complex tech into user value |
+| **SYSTEM ARCHITECTURE** | `███████████` | High-throughput, async-first design |
+| **RESOURCEFULNESS** | `███████████` | *See: The RTX 3090 Incident* |
+| **GPA** | `8.56 / 10` | BE in ECE (Nitte Meenakshi Institute) |
 
 ---
 
-## Contact
+## ▓▒░ ARSENAL ░▒▓
 
-Email: 2003.ravikrishna@gmail.com  
-LinkedIn: https://www.linkedin.com/in/ravi-krishna-661704234/
+<div align="center">
+
+| **NEURAL (AI/ML)** | **CORE (LANGS)** | **INFRASTRUCTURE** |
+|:---:|:---:|:---:|
+| ![PyTorch](https://img.shields.io/badge/PyTorch-%23EE4C2C.svg?style=flat-square&logo=PyTorch&logoColor=white) ![LangChain](https://img.shields.io/badge/LangChain-1C3C3C?style=flat-square&logo=chainlink&logoColor=white) | ![Python](https://img.shields.io/badge/python-3670A0?style=flat-square&logo=python&logoColor=ffdd54) ![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=flat-square&logo=typescript&logoColor=white) | ![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=flat-square&logo=docker&logoColor=white) ![Kubernetes](https://img.shields.io/badge/kubernetes-%23326ce5.svg?style=flat-square&logo=kubernetes&logoColor=white) |
+| ![CrewAI](https://img.shields.io/badge/CrewAI-FF4F00?style=flat-square) ![OpenAI](https://img.shields.io/badge/OpenAI-412991?style=flat-square&logo=openai&logoColor=white) | ![C++](https://img.shields.io/badge/c++-%2300599C.svg?style=flat-square&logo=c%2B%2B&logoColor=white) ![React](https://img.shields.io/badge/react-%2320232a.svg?style=flat-square&logo=react&logoColor=%2361DAFB) | ![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=flat-square&logo=fastapi) ![Git](https://img.shields.io/badge/git-%23F05033.svg?style=flat-square&logo=git&logoColor=white) |
+
+</div>
+
+---
+
+## ▓▒░ DEPLOYMENT LOG (Experience) ░▒▓
+
+### **[2023 - 2025] AUTOMA | Software Automation Lead**
+* **Target:** Secure customer support automation.
+* **Outcome:** Built a FastAPI platform with dual-layer validation that **reduced data leakage by 95%** across 100+ prompt injection tests.
+* **Innovation:** Designed "Workflow Mode" for the MoonLight platform—a dynamic routing system where agents evaluate user clauses at runtime.
+
+### **[2025] ANTARES LIFE CYCLE SOLUTIONS | Technical Engineer (Contract)**
+* **Target:** Industrial IoT Visualization.
+* **Outcome:** Developed a real-time React/TypeScript dashboard for complex plant telemetry.
+* **Impact:** Tool directly accelerated product sales discussions with Director-level stakeholders.
+
+### **[2023] SVADHRUTHI (World Diabetes Forum) | Technical Lead**
+* **Target:** Personalized health management pipeline.
+* **Outcome:** Supported **1,000+ concurrent users** with zero downtime and 94% clinical recommendation accuracy using a Flask-based RAG pipeline.
+
+---
+
+## ▓▒░ BLACK PROJECTS ░▒▓
+
+| CODE NAME | CLASS | SPECS | STATUS |
+|:----------|:------|:------|:-------|
+| **🌙 MOONLIGHT** | `AGENT SDK` | Self-planning async agent framework. **3.4k+ Downloads**. Prioritized action-oriented workflows generated by LLM. | `OPEN SOURCE` |
+| **🛡 OSHLEY** | `DEFENSE` | Anti-hallucination support system. Implements **Generator-Validator architecture** to scrub PII. | `VALIDATED` |
+| **👁 FACESPACE** | `VISION` | **200+ video streams on a single GPU**. Bypassed NVIDIA container restrictions using custom multiprocessing. | `OPTIMIZED` |
+| **⚓ NOUAR** | `NAVAL` | Naval automation system using Raspberry Pi + C++. **Patent Pending**. Demoed to Indian Navy Captain. | `CLASSIFIED` |
+
+---
+
+## ▓▒░ SYSTEM OVERRIDES (Leadership & Stories) ░▒▓
+
+<details>
+<summary><b>Case File 001: The RTX 3090 Heist (Resourcefulness)</b></summary>
+<br>
+When our proposal for a ₹3.5L RTX 4090 was rejected due to budget cuts, I didn't scale down the project. I physically scouted the campus and located an underutilized RTX 3090 in a separate R&D lab. I walked into the administrator's office, demoed our <i>FaceSpace</i> vision system on a laptop, and proved its value for attendance monitoring. 
+
+<b>Result:</b> I walked out with the RTX 3090 assigned to our team for 2 years.
+</details>
+
+<details>
+<summary><b>Case File 002: The Berghain Protocol (Problem Solving)</b></summary>
+<br>
+<b>Challenge:</b> Berghain Bouncer Challenge (AI Simulation).
+<br>
+<b>Rank:</b> Top 5% (70th / 1400 finalists).
+<br>
+<b>Method:</b> While others trained massive models, I used pure <b>Linear Programming</b> and adaptive heuristics to predict rejection probabilities. Sometimes, the simplest algorithm is the deadliest.
+</details>
+
+<details>
+<summary><b>Case File 003: The Attendance Crisis (Leadership)</b></summary>
+<br>
+Leading a 2-person team on an Interactive Learning bot, we faced critical delays. I identified the root causes: one member had attendance issues, the other had technical blockers. I drafted a formal internship offer letter to incentivize attendance and pair-programmed directly to clear the blockers. We delivered on time.
+</details>
+
+---
+
+## ▓▒░ CORE DIRECTIVES ░▒▓
+
+```javascript
+const CORE_VALUES = {
+  optimization: "If it is slow, it must be parallelized.",
+  resilience: "If it can hallucinate, it must verify itself.",
+  ambition: "If it is impossible, it is next.",
+  learning: "Always shipping, always upgrading."
+};
+
+```
 
 ---
 
 <div align="center">
 
-If you are hiring for product-minded engineers or engineering-minded PMs, this is the kind of work I do.
+### ▓▒░ END OF LINE ░▒▓
+
+### [ INITIATE COLLABORATION PROTOCOL ]
+
+[EMAIL](mailto:2003.ravikrishna@gmail.com) • [LINKEDIN](https://www.linkedin.com/in/ravi-krishna-661704234/)
 
 </div>
