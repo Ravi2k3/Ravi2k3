@@ -1,125 +1,116 @@
 <div align="center">
+<img src="https://capsule-render.vercel.app/api?type=rect&color=0:0f172a,100:020617&height=110&section=header&text=RAVI%20KRISHNA&fontSize=40&fontColor=e5e7eb" />
 
-<img src="https://capsule-render.vercel.app/api?type=rect&color=0:0f0c29,100:302b63&height=120&section=header&text=RAVI%20KRISHNA&fontSize=42&fontColor=00ffe1&animation=fadeIn" />
+### Product & AI Engineer
 
-### ▓▒░ PRODUCT × AI ENGINEER ░▒▓  
-### ▓▒░ SYSTEM ARCHITECT OF UNCOOPERATIVE MACHINES ░▒▓
+Building and shipping AI systems. Focused on reliability, performance, and product usability.
 
-> **"Reality is just another system with undocumented APIs."**
-
-<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&size=18&duration=2000&pause=600&color=00FFE1&center=true&vCenter=true&width=700&lines=ACCESSING+SYSTEM...;BYPASSING+LIMITERS...;SPAWNING+AGENTS...;OVERCLOCKING+REALITY...;STATUS:+IN+PRODUCTION" />
+Bangalore, India
 
 </div>
 
 ---
 
-## ▓▒░ SYSTEM TELEMETRY ░▒▓
+## Overview
 
-```
-AGENT RELIABILITY     ████████████████░░░░   87%
-GPU SATURATION        ████████████████████   100%
-PRODUCT INSTINCT      █████████████████░░░   92%
-SLEEP QUOTA           ██░░░░░░░░░░░░░░░░░░   9%
-SANITY                █████░░░░░░░░░░░░░░░   25%
+I work on production AI systems across agents, vision, and automation. My work usually sits between product design and engineering: shaping what gets built, then building it.
 
-```
-
----
-
-## ▓▒░ ACTIVE PROCESSES ░▒▓
-
-> [ RUNNING ]
-
-🧠 Multi-agent systems with internal verification layers  
-🛡 Prompt-injection resistant LLM pipelines  
-⚙️ Async-first architectures that do not deadlock  
-🧨 High-density GPU workloads under hostile constraints  
-🧭 Product flows that collapse complexity into obviousness  
+I care about:
+- Making LLM systems safer and more predictable
+- Async and high-throughput systems
+- Product flows that reduce user and operator error
+- Systems that survive real usage, not just demos
 
 ---
 
-## ▓▒░ INCIDENT LOG ░▒▓
+## Current Focus
 
 ```
 
-[ OK ]  Forced 1 GPU to handle 200+ live video streams
-[ OK ]  Implemented multi-stage LLM validation (-95% data leakage)
-[ OK ]  Deployed WhatsApp ↔ LLM bridge using Twilio + Meta API
-[ OK ]  Shipped self-planning agent workflows
-[ OK ]  Substituted RTX 4090 with RTX 3090 and shipped anyway
+LLM Reliability        ███████████████░░░░   82%
+High Throughput Systems █████████████████░░   90%
+Product Engineering    ██████████████████░   92%
+Infra & Deployment     ███████████████░░░░   80%
 
 ```
 
 ---
 
-## ▓▒░ BLACK PROJECTS ░▒▓
+## Selected Work (Condensed)
 
-| CODE NAME | CLASS | DESCRIPTION |
-|----------|-------|-------------|
-| 🌙 MOONLIGHT | AGENT SDK | Self-planning async agent framework (3.8k+ downloads) |
-| 🛡 OSHLEY | DEFENSE AI | Anti-hallucination support system |
-| 👁 FACESPACE | VISION | 200+ streams on one GPU |
-| 🎓 AUTOMA | TRAINING AI | Memory-based improvement loop |
-| ⚓ NOUAR | NAVAL | Deployed + demoed on-ship |
+```
+
+• AI agent framework used by ~3.8k developers
+• Customer-support LLM system with ~95% reduction in data leakage via multi-stage validation
+• Vision system handling 200+ concurrent streams on a single GPU
+• WhatsApp ↔ LLM integration for production-style agent pipelines
+• Naval automation system demoed on-ship (joint team effort)
+
+```
 
 ---
 
-## ▓▒░ TOOLCHAIN ░▒▓
+## How I Build
+
+```
+
+> Start from the user and failure modes
+> Design the flow before the architecture
+> Add safety gates before adding features
+> If it's slow, parallelize it
+> If it breaks easily, it isn't done
+
+```
+
+---
+
+## Tools
 
 <div align="center">
 
-![Python](https://img.shields.io/badge/PYTHON-000000?style=for-the-badge&logo=python&logoColor=00ffe1)
-![TypeScript](https://img.shields.io/badge/TYPESCRIPT-000000?style=for-the-badge&logo=typescript&logoColor=00ffe1)
-![C++](https://img.shields.io/badge/C++-000000?style=for-the-badge&logo=c%2B%2B&logoColor=00ffe1)
-![FastAPI](https://img.shields.io/badge/FASTAPI-000000?style=for-the-badge&logo=fastapi&logoColor=00ffe1)
-![React](https://img.shields.io/badge/REACT-000000?style=for-the-badge&logo=react&logoColor=00ffe1)
-![Docker](https://img.shields.io/badge/DOCKER-000000?style=for-the-badge&logo=docker&logoColor=00ffe1)
-![Kubernetes](https://img.shields.io/badge/KUBERNETES-000000?style=for-the-badge&logo=kubernetes&logoColor=00ffe1)
-![PyTorch](https://img.shields.io/badge/PYTORCH-000000?style=for-the-badge&logo=pytorch&logoColor=00ffe1)
+![Python](https://img.shields.io/badge/Python-020617?style=for-the-badge&logo=python&logoColor=e5e7eb)
+![TypeScript](https://img.shields.io/badge/TypeScript-020617?style=for-the-badge&logo=typescript&logoColor=e5e7eb)
+![C++](https://img.shields.io/badge/C++-020617?style=for-the-badge&logo=c%2B%2B&logoColor=e5e7eb)
+![FastAPI](https://img.shields.io/badge/FastAPI-020617?style=for-the-badge&logo=fastapi&logoColor=e5e7eb)
+![React](https://img.shields.io/badge/React-020617?style=for-the-badge&logo=react&logoColor=e5e7eb)
+![Docker](https://img.shields.io/badge/Docker-020617?style=for-the-badge&logo=docker&logoColor=e5e7eb)
+![Kubernetes](https://img.shields.io/badge/Kubernetes-020617?style=for-the-badge&logo=kubernetes&logoColor=e5e7eb)
+![PyTorch](https://img.shields.io/badge/PyTorch-020617?style=for-the-badge&logo=pytorch&logoColor=e5e7eb)
 
 </div>
 
 ---
 
-## ▓▒░ ACHIEVEMENTS ░▒▓
+## A Few Verifiable Points
 
 ```
 
-[ RANK 70 / 1400 ]  Berghain Bouncer Challenge (150k+ total entries)
-[ VERIFIED ]        Linear Programming + adaptive heuristics solution
-[ HARDENED ]        Production LLM systems with safety gates
-[ PRESENTED ]       Investor + enterprise technical demos
-
-```
-
----
-
-## ▓▒░ CORE DIRECTIVES ░▒▓
-
-```
-
-> If it can hallucinate, it must verify itself.
-> If it is slow, it must be parallelized.
-> If it is fragile, it must be gated.
-> If it is impossible, it is next.
+• Ranked 70 / 1400 finalists in the Berghain Bouncer Challenge (150k+ total entries), solved solo using LP + heuristics
+• Designed LLM systems with multi-stage validation that cut data leakage by ~95%
+• Built GPU multiprocessing pipeline supporting 200+ live streams
+• Regularly presented technical + product demos to enterprise and investors
 
 ```
 
 ---
 
-## ▓▒░ SECURE CHANNELS ░▒▓
+## Education
 
-📡 EMAIL: 2003.ravikrishna@gmail.com  
-🧾 LINKEDIN: https://www.linkedin.com/in/ravi-krishna-661704234/
+**B.E. in Electronics & Communication Engineering**  
+Nitte Meenakshi Institute of Technology, Bangalore  
+GPA: 8.56 / 10
+
+---
+
+## Contact
+
+Email: 2003.ravikrishna@gmail.com  
+LinkedIn: https://www.linkedin.com/in/ravi-krishna-661704234/
 
 ---
 
 <div align="center">
 
-### ▓▒░ END OF LINE ░▒▓  
-### STATUS: STILL SHIPPING
+If you are hiring for product-minded engineers or engineering-minded PMs, this is the kind of work I do.
 
 </div>
-
-Tell me the direction:
-**“more hacker-terminal”**, **“more neon”**, or **“more minimal.”**
