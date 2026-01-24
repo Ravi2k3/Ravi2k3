@@ -78,7 +78,7 @@ My focus is on **shipping production-grade AI**: from optimizing single-GPU infe
 
 ## 📜 Certifications
 
-* **Machine Learning Specialization** - Stanford (Coursera)₹
+* **Machine Learning Specialization** - Stanford 
 * **Google Project Management** - Google
 * **Scientific Computing with Python** - FreeCodeCamp
 
