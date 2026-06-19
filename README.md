@@ -40,10 +40,16 @@
 ###
 
 <p align="center">
-  <a href="https://www.linkedin.com/in/ravi-krishna-661704234/"><img src="https://img.shields.io/badge/LinkedIn-0d1117?style=flat-square&logo=linkedin&logoColor=d29922" alt="LinkedIn" /></a>
-  <a href="https://github.com/Ravi2k3"><img src="https://img.shields.io/badge/GitHub-0d1117?style=flat-square&logo=github&logoColor=d29922" alt="GitHub" /></a>
-  <a href="mailto:2003.ravikrishna@gmail.com"><img src="https://img.shields.io/badge/Email-0d1117?style=flat-square&logo=gmail&logoColor=d29922" alt="Email" /></a>
-  <a href="https://pypi.org/project/moonlight-ai/"><img src="https://img.shields.io/pepy/dt/moonlight-ai?style=flat-square&color=d29922&labelColor=0d1117&label=moonlight-ai%20installs" alt="MoonLight installs" /></a>
+  <a href="https://www.linkedin.com/in/ravi-krishna-661704234/"><img src="https://img.shields.io/badge/LinkedIn-0d1117?style=flat-square&logo=linkedin&logoColor=D97757" alt="LinkedIn" /></a>
+  <a href="https://github.com/Ravi2k3"><img src="https://img.shields.io/badge/GitHub-0d1117?style=flat-square&logo=github&logoColor=D97757" alt="GitHub" /></a>
+  <a href="mailto:2003.ravikrishna@gmail.com"><img src="https://img.shields.io/badge/Email-0d1117?style=flat-square&logo=gmail&logoColor=D97757" alt="Email" /></a>
+  <a href="https://pypi.org/project/moonlight-ai/"><img src="https://img.shields.io/pepy/dt/moonlight-ai?style=flat-square&color=D97757&labelColor=0d1117&label=moonlight-ai%20installs" alt="MoonLight installs" /></a>
+</p>
+
+###
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/main/assets/stats.svg" alt="By the numbers: 1372 contributions last year, 7.7k moonlight-ai installs, 4-plus years shipping" width="100%" />
 </p>
 
 ###
