@@ -64,4 +64,8 @@
   <img src="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/main/assets/building.svg" alt="Currently building: Aikyat Mail, the reference-card protocol, Throughline" width="100%" />
 </p>
 
-<!-- contribution-graph animation (snake / car-crash) goes here once the workflow is added -->
+###
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/main/assets/car.svg" alt="A car driving across my contribution graph, knocking the days off" width="100%" />
+</p>

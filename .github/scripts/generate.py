@@ -32,7 +32,8 @@ YEARS: str = "4+"
 
 CONTRIBUTIONS_QUERY: str = (
     "query($login:String!){ user(login:$login){ contributionsCollection{ "
-    "contributionCalendar{ totalContributions } } } }"
+    "contributionCalendar{ totalContributions weeks{ contributionDays{ "
+    "contributionCount } } } } } }"
 )
 LANGUAGES_QUERY: str = (
     "query($login:String!){ user(login:$login){ repositories(first:100, "
@@ -55,6 +56,7 @@ class LanguageStat:
 class ProfileData:
     contributions: int
     languages: List[LanguageStat]
+    calendar_weeks: List[List[int]]
 
 
 def parse_args() -> argparse.Namespace:
@@ -205,9 +207,9 @@ def extract_user(
     return require_object(user, f"{context}.data.user")
 
 
-def fetch_contributions(
+def fetch_contributions_and_calendar(
     token: str,
-) -> int:
+) -> Tuple[int, List[List[int]]]:
     response = graphql_request(
         token=token,
         query=CONTRIBUTIONS_QUERY,
@@ -222,10 +224,33 @@ def fetch_contributions(
         collection.get("contributionCalendar"),
         "contributions.data.user.contributionsCollection.contributionCalendar",
     )
-    return require_int(
+    total = require_int(
         calendar.get("totalContributions"),
         "contributions.data.user.contributionsCollection.contributionCalendar.totalContributions",
     )
+    weeks_raw = require_list(
+        calendar.get("weeks"),
+        "contributions.data.user.contributionsCollection.contributionCalendar.weeks",
+    )
+    weeks: List[List[int]] = []
+    for week_index, week in enumerate(weeks_raw):
+        week_object = require_object(week, f"calendar.weeks[{week_index}]")
+        days = require_list(
+            week_object.get("contributionDays"),
+            f"calendar.weeks[{week_index}].contributionDays",
+        )
+        weeks.append(
+            [
+                require_int(
+                    require_object(day, f"calendar.weeks[{week_index}].days[{day_index}]").get(
+                        "contributionCount"
+                    ),
+                    f"calendar.weeks[{week_index}].days[{day_index}].contributionCount",
+                )
+                for day_index, day in enumerate(days)
+            ]
+        )
+    return total, weeks
 
 
 def normalize_language_stats(
@@ -313,9 +338,11 @@ def fetch_languages(
 def load_live_profile_data(
     token: str,
 ) -> ProfileData:
+    contributions, calendar_weeks = fetch_contributions_and_calendar(token)
     return ProfileData(
-        contributions=fetch_contributions(token),
+        contributions=contributions,
         languages=fetch_languages(token),
+        calendar_weeks=calendar_weeks,
     )
 
 
@@ -340,7 +367,23 @@ def load_sample_profile_data() -> ProfileData:
                 "CSS": "#663399",
             },
         ),
+        calendar_weeks=sample_calendar_weeks(),
     )
+
+
+def sample_calendar_weeks() -> List[List[int]]:
+    weeks: List[List[int]] = []
+    state = 20260619
+    for column in range(53):
+        week: List[int] = []
+        density = 0.08 + (column / 53) * 0.55
+        for _ in range(7):
+            state = (state * 1103515245 + 12345) & 0x7FFFFFFF
+            roll = state / 0x7FFFFFFF
+            state = (state * 1103515245 + 12345) & 0x7FFFFFFF
+            week.append(int(1 + (state / 0x7FFFFFFF) * 30) if roll < density else 0)
+        weeks.append(week)
+    return weeks
 
 
 def escape_text(
@@ -728,6 +771,183 @@ def build_languages_svg(
     return "\n".join(parts)
 
 
+# Car-crash contribution panel. GitHub renders SVGs as <img>, so the whole
+# animation is baked into CSS @keyframes (no JavaScript runs). A coral car drives
+# across the real contribution grid and the filled cells launch off as it reaches
+# their column, then the graph redraws and it loops.
+CAR_EMPTY: str = "#161b22"
+CAR_GREENS: List[str] = ["#0e4429", "#006d32", "#26a641", "#39d353"]
+CAR_DARK: str = "#b75e43"
+CAR_HEADLIGHT: str = "#FDE68A"
+CAR_TAILLIGHT: str = "#FF5F56"
+CAR_TIRE: str = "#0a0c10"
+CAR_HUB: str = "#2a2f37"
+
+CAR_WIDTH: int = 1200
+CAR_HEIGHT: int = 240
+CAR_CELL: int = 15
+CAR_GAP: int = 4
+CAR_PITCH: int = CAR_CELL + CAR_GAP
+CAR_ORIGIN_X: int = 98
+CAR_ORIGIN_Y: int = 58
+CAR_ROWS: int = 7
+CAR_PERIOD_S: float = 7.0
+CAR_CROSS_END: float = 0.78  # phase at which the car has fully exited to the right
+CAR_RESET_START: float = 0.92  # phase where the graph begins fading back in
+
+
+def contribution_level(
+    count: int,
+) -> int:
+    if count <= 0:
+        return -1
+    if count <= 3:
+        return 0
+    if count <= 9:
+        return 1
+    if count <= 29:
+        return 2
+    return 3
+
+
+def deterministic_rng(
+    seed: int,
+):
+    state = (seed * 1103515245 + 12345) & 0x7FFFFFFF
+
+    def nxt() -> float:
+        nonlocal state
+        state = (state * 1103515245 + 12345) & 0x7FFFFFFF
+        return state / 0x7FFFFFFF
+
+    return nxt
+
+
+def car_arrival_phase(
+    cell_center_x: float,
+) -> float:
+    phase = CAR_CROSS_END * (cell_center_x + 150.0) / 1500.0
+    return max(0.0, min(CAR_CROSS_END, phase))
+
+
+def car_cell_keyframes(
+    name: str,
+    fly_start_pct: float,
+    dx: float,
+    dy: float,
+    rot: float,
+) -> str:
+    fly_peak = min(CAR_RESET_START * 100 - 4, fly_start_pct + 5)
+    fly_end = min(CAR_RESET_START * 100 - 1, fly_start_pct + 12)
+    reset_pct = CAR_RESET_START * 100
+    return (
+        f"@keyframes {name}{{"
+        f"0%,{fly_start_pct:.2f}%{{transform:translate(0,0) rotate(0);opacity:1}}"
+        f"{fly_peak:.2f}%{{transform:translate({dx * 0.45:.0f}px,{dy * 0.5:.0f}px) rotate({rot * 0.5:.0f}deg);opacity:1}}"
+        f"{fly_end:.2f}%{{transform:translate({dx:.0f}px,{dy:.0f}px) rotate({rot:.0f}deg);opacity:0}}"
+        f"{reset_pct:.2f}%{{transform:translate({dx:.0f}px,{dy:.0f}px) rotate({rot:.0f}deg);opacity:0}}"
+        f"{reset_pct + 0.5:.2f}%{{transform:translate(0,0) rotate(0);opacity:0}}"
+        f"100%{{transform:translate(0,0) rotate(0);opacity:1}}"
+        f"}}"
+    )
+
+
+def build_car_group() -> str:
+    car_w = 132
+    half = car_w / 2
+    body = (
+        f'<path d="M{-half},0 L{-half + 12},-20 L-14,-25 L9,-46 L46,-46 '
+        f'L62,-23 L{half},-18 L{half},0 Z" fill="{ORANGE}"/>'
+    )
+    body_shade = f'<path d="M{-half},0 L{-half + 12},-20 L-14,-25 L-14,0 Z" fill="{CAR_DARK}"/>'
+    window = f'<path d="M11,-44 L43,-44 L57,-25 L16,-25 Z" fill="{BG}"/>'
+    headlight = f'<rect x="{half - 7}" y="-16" width="7" height="7" rx="1.5" fill="{CAR_HEADLIGHT}"/>'
+    taillight = f'<rect x="{-half}" y="-16" width="5" height="8" rx="1.5" fill="{CAR_TAILLIGHT}"/>'
+    wheels = "".join(
+        f'<circle cx="{wx}" cy="2" r="15" fill="{CAR_TIRE}"/>'
+        f'<circle cx="{wx}" cy="2" r="6" fill="{CAR_HUB}"/>'
+        for wx in (-half + 28, half - 28)
+    )
+    glow = f'<ellipse cx="0" cy="6" rx="96" ry="30" fill="{ORANGE}" opacity="0.18" filter="url(#carsoft)"/>'
+    speed = "".join(
+        f'<rect x="{-half - 18 - i * 26}" y="{-20 + i * 9}" width="20" height="2.5" rx="1.25" '
+        f'fill="{ORANGE}" opacity="{0.5 - i * 0.09:.2f}"/>'
+        for i in range(4)
+    )
+    return (
+        f'<g class="car">{glow}{speed}{body}{body_shade}{window}'
+        f"{headlight}{taillight}{wheels}</g>"
+    )
+
+
+def build_car_svg(
+    weeks: List[List[int]],
+) -> str:
+    keyframes: List[str] = []
+    cells: List[str] = []
+    base_y = CAR_ORIGIN_Y + CAR_ROWS * CAR_PITCH - CAR_GAP
+    rand = deterministic_rng(20260619)
+    fly_index = 0
+
+    for col, week in enumerate(weeks):
+        cx = CAR_ORIGIN_X + col * CAR_PITCH
+        phase = car_arrival_phase(cx + CAR_CELL / 2)
+        for row, count in enumerate(week):
+            cy = CAR_ORIGIN_Y + row * CAR_PITCH
+            level = contribution_level(count)
+            if level < 0:
+                cells.append(
+                    f'<rect x="{cx}" y="{cy}" width="{CAR_CELL}" height="{CAR_CELL}" '
+                    f'rx="3" fill="{CAR_EMPTY}"/>'
+                )
+                continue
+            forward = 30 + rand() * 120
+            lateral = forward if rand() > 0.18 else -(20 + rand() * 70)
+            dy = -(150 + rand() * 150)
+            rot = (rand() * 2 - 1) * 240
+            name = f"f{fly_index}"
+            keyframes.append(car_cell_keyframes(name, phase * 100, lateral, dy, rot))
+            cells.append(
+                f'<rect class="cell" style="animation-name:{name}" x="{cx}" y="{cy}" '
+                f'width="{CAR_CELL}" height="{CAR_CELL}" rx="3" fill="{CAR_GREENS[level]}"/>'
+            )
+            fly_index += 1
+
+    drive = (
+        "@keyframes drive{"
+        "0%{transform:translate(-150px,0)}"
+        "18%{transform:translate(180px,-2px)}"
+        "40%{transform:translate(620px,0)}"
+        "60%{transform:translate(980px,-2px)}"
+        f"{CAR_CROSS_END * 100:.0f}%{{transform:translate(1350px,0)}}"
+        "100%{transform:translate(1350px,0)}}"
+    )
+    style = (
+        "<style>"
+        ".cell{transform-box:fill-box;transform-origin:center;"
+        f"animation-duration:{CAR_PERIOD_S}s;animation-iteration-count:infinite;"
+        "animation-timing-function:ease-out}"
+        f".car{{animation:drive {CAR_PERIOD_S}s linear infinite;transform:translate(-150px,0)}}"
+        + drive
+        + "".join(keyframes)
+        + "</style>"
+    )
+    defs = (
+        '<defs><filter id="carsoft" x="-50%" y="-50%" width="200%" height="200%">'
+        '<feGaussianBlur stdDeviation="8"/></filter></defs>'
+    )
+    return (
+        f'<svg xmlns="http://www.w3.org/2000/svg" width="{CAR_WIDTH}" height="{CAR_HEIGHT}" '
+        f'viewBox="0 0 {CAR_WIDTH} {CAR_HEIGHT}" role="img" '
+        f'aria-label="A car driving across the contribution graph, knocking the days off">'
+        f"{defs}{style}"
+        f'<rect width="{CAR_WIDTH}" height="{CAR_HEIGHT}" fill="{BG}"/>'
+        f'<g>{"".join(cells)}</g>'
+        f'<g transform="translate(0,{base_y + 6})">{build_car_group()}</g>'
+        f"</svg>"
+    )
+
+
 def write_svg(
     output_path: Path,
     svg: str,
@@ -747,6 +967,7 @@ def render_panels(
         (out_dir / "building.svg", build_building_svg(font_data)),
         (out_dir / "stats.svg", build_stats_svg(profile_data, font_data)),
         (out_dir / "languages.svg", build_languages_svg(profile_data, font_data)),
+        (out_dir / "car.svg", build_car_svg(profile_data.calendar_weeks)),
     ]
 
     written_paths: List[Path] = []
