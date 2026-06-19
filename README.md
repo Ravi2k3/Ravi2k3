@@ -54,9 +54,16 @@
 
 ###
 
+<!-- The languages panel activates on the first profile-stats workflow run (needs the STATS_TOKEN secret so private repos are included). Uncomment once assets/languages.svg exists.
+<p align="center">
+  <img src="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/main/assets/languages.svg" alt="Language split across owner repositories" width="100%" />
+</p>
+
+###
+-->
+
 <p align="center">
   <img src="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/main/assets/building.svg" alt="Currently building: Aikyat Mail, the reference-card protocol, Throughline" width="100%" />
 </p>
 
 <!-- contribution-graph animation (snake / car-crash) goes here once the workflow is added -->
-
