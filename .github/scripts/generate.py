@@ -65,6 +65,11 @@ def parse_args() -> argparse.Namespace:
         help="Use sample layout data without network access.",
     )
     parser.add_argument(
+        "--require-live",
+        action="store_true",
+        help="Fail instead of falling back to sample data when no token is set (use in CI).",
+    )
+    parser.add_argument(
         "--out",
         type=Path,
         default=None,
@@ -756,6 +761,13 @@ def main() -> int:
     out_dir, font_path = resolve_paths(args.out)
     font_data = read_font_data(font_path)
     token = os.environ.get("GH_TOKEN", "").strip()
+
+    if args.require_live and not token:
+        raise RuntimeError(
+            "Live mode requires GH_TOKEN, but it is empty. Set the STATS_TOKEN secret "
+            "so private repositories are included; refusing to publish sample data."
+        )
+
     use_sample = args.sample or not token
 
     if use_sample:
