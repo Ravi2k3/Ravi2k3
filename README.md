@@ -40,21 +40,21 @@
 ###
 
 <p align="center">
-  <a href="https://www.linkedin.com/in/ravi-krishna-661704234/"><img src="https://img.shields.io/badge/LinkedIn-0B0F0C?style=flat-square&logo=linkedin&logoColor=38E07B" alt="LinkedIn" /></a>
-  <a href="https://github.com/Ravi2k3"><img src="https://img.shields.io/badge/GitHub-0B0F0C?style=flat-square&logo=github&logoColor=38E07B" alt="GitHub" /></a>
-  <a href="mailto:2003.ravikrishna@gmail.com"><img src="https://img.shields.io/badge/Email-0B0F0C?style=flat-square&logo=gmail&logoColor=38E07B" alt="Email" /></a>
-  <a href="https://pypi.org/project/moonlight-ai/"><img src="https://img.shields.io/pepy/dt/moonlight-ai?style=flat-square&color=38E07B&labelColor=0B0F0C&label=moonlight-ai%20installs" alt="MoonLight installs" /></a>
+  <a href="https://www.linkedin.com/in/ravi-krishna-661704234/"><img src="https://img.shields.io/badge/LinkedIn-0d1117?style=flat-square&logo=linkedin&logoColor=d29922" alt="LinkedIn" /></a>
+  <a href="https://github.com/Ravi2k3"><img src="https://img.shields.io/badge/GitHub-0d1117?style=flat-square&logo=github&logoColor=d29922" alt="GitHub" /></a>
+  <a href="mailto:2003.ravikrishna@gmail.com"><img src="https://img.shields.io/badge/Email-0d1117?style=flat-square&logo=gmail&logoColor=d29922" alt="Email" /></a>
+  <a href="https://pypi.org/project/moonlight-ai/"><img src="https://img.shields.io/pepy/dt/moonlight-ai?style=flat-square&color=d29922&labelColor=0d1117&label=moonlight-ai%20installs" alt="MoonLight installs" /></a>
 </p>
 
 ###
 
 <div align="center">
-  <img height="180" src="https://github-readme-stats.vercel.app/api?username=Ravi2k3&show_icons=true&count_private=true&include_all_commits=true&hide_border=false&border_color=2A332C&bg_color=0B0F0C&title_color=38E07B&icon_color=38E07B&text_color=C8D6CC&ring_color=38E07B" alt="GitHub stats" />
-  <img height="180" src="https://streak-stats.demolab.com/?user=Ravi2k3&hide_border=false&background=0B0F0C&border=2A332C&stroke=2A332C&ring=38E07B&fire=FF5F56&currStreakLabel=38E07B&currStreakNum=C8D6CC&sideLabels=C8D6CC&sideNums=C8D6CC&dates=5A6B5E" alt="Streak" />
+  <img height="180" src="https://github-readme-stats.vercel.app/api?username=Ravi2k3&show_icons=true&count_private=true&include_all_commits=true&hide_border=false&border_color=30363d&bg_color=0d1117&title_color=d29922&icon_color=d29922&text_color=c9d1d9&ring_color=d29922" alt="GitHub stats" />
+  <img height="180" src="https://streak-stats.demolab.com/?user=Ravi2k3&hide_border=false&background=0d1117&border=30363d&stroke=30363d&ring=d29922&fire=f85149&currStreakLabel=d29922&currStreakNum=c9d1d9&sideLabels=c9d1d9&sideNums=c9d1d9&dates=6e7681" alt="Streak" />
 </div>
 
 <div align="center">
-  <img height="155" src="https://github-readme-stats.vercel.app/api/top-langs/?username=Ravi2k3&layout=compact&hide_border=false&border_color=2A332C&bg_color=0B0F0C&title_color=38E07B&text_color=C8D6CC&langs_count=8" alt="Top languages" />
+  <img height="155" src="https://github-readme-stats.vercel.app/api/top-langs/?username=Ravi2k3&layout=compact&hide_border=false&border_color=30363d&bg_color=0d1117&title_color=d29922&text_color=c9d1d9&langs_count=8" alt="Top languages" />
 </div>
 
 ###
