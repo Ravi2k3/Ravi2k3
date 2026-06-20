@@ -475,9 +475,8 @@ def build_banner_svg(
         ),
         f'  <rect width="1200" height="360" fill="{BG}"/>',
         "",
-        f'  <rect x="64" y="74" width="16" height="16" fill="{ORANGE}"/>',
         svg_text(
-            x=92,
+            x=64,
             y=89,
             font_size=14,
             fill=MUTE,
@@ -553,9 +552,8 @@ def build_building_svg(
             font_data=font_data,
         ),
         f'  <rect width="1200" height="396" fill="{BG}"/>',
-        f'  <rect x="64" y="42" width="14" height="14" fill="{ORANGE}"/>',
         svg_text(
-            x=90,
+            x=64,
             y=56,
             font_size=13,
             fill=MUTE,
@@ -627,9 +625,8 @@ def build_stats_svg(
             font_data=font_data,
         ),
         f'  <rect width="1200" height="212" fill="{BG}"/>',
-        f'  <rect x="64" y="44" width="14" height="14" fill="{ORANGE}"/>',
         svg_text(
-            x=90,
+            x=64,
             y=58,
             font_size=13,
             fill=MUTE,
@@ -754,9 +751,8 @@ def build_languages_svg(
             font_data=font_data,
         ),
         f'  <rect width="1200" height="196" fill="{BG}"/>',
-        f'  <rect x="64" y="44" width="14" height="14" fill="{ORANGE}"/>',
         svg_text(
-            x=90,
+            x=64,
             y=58,
             font_size=13,
             fill=MUTE,

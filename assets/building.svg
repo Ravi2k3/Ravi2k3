@@ -4,8 +4,7 @@
 text { font-family:'Lex', system-ui, -apple-system, sans-serif; }
 </style></defs>
   <rect width="1200" height="396" fill="#0d1117"/>
-  <rect x="64" y="42" width="14" height="14" fill="#D97757"/>
-  <text x="90" y="56" font-size="13" font-weight="600" fill="#6e7681" letter-spacing="3">CURRENTLY BUILDING</text>
+  <text x="64" y="56" font-size="13" font-weight="600" fill="#6e7681" letter-spacing="3">CURRENTLY BUILDING</text>
   <text x="64" y="118" font-size="27" font-weight="700" fill="#c9d1d9" letter-spacing="-0.5">Aikyat Mail</text>
   <text x="1136" y="116" font-size="14" font-weight="500" fill="#D97757" text-anchor="end">40+ providers · 92.7% recall@10</text>
   <text x="64" y="146" font-size="15" font-weight="450" fill="#6e7681">AI email client across Gmail, Outlook, and 40+ providers, built solo. FastAPI · pgvector · Flutter.</text>

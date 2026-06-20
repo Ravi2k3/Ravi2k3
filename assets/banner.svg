@@ -5,8 +5,7 @@ text { font-family:'Lex', system-ui, -apple-system, sans-serif; }
 </style></defs>
   <rect width="1200" height="360" fill="#0d1117"/>
 
-  <rect x="64" y="74" width="16" height="16" fill="#D97757"/>
-  <text x="92" y="89" font-size="14" font-weight="600" fill="#6e7681" letter-spacing="3">PRODUCT MANAGER · COLLIGENCE</text>
+  <text x="64" y="89" font-size="14" font-weight="600" fill="#6e7681" letter-spacing="3">PRODUCT MANAGER · COLLIGENCE</text>
 
   <text x="60" y="198" font-size="74" font-weight="700" letter-spacing="-2" fill="#c9d1d9">I design the <tspan fill="#D97757">boundaries</tspan></text>
   <text x="60" y="274" font-size="74" font-weight="700" fill="#c9d1d9" letter-spacing="-2">between products.</text>
