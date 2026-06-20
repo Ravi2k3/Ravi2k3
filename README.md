@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/main/assets/banner.svg" alt="ravi@boundary: access granted to the reader, denied to everyone else" width="100%" />
+  <img src="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/output/banner.svg" alt="ravi@boundary: access granted to the reader, denied to everyone else" width="100%" />
 </p>
 
 ###
@@ -49,23 +49,23 @@
 ###
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/main/assets/stats.svg" alt="By the numbers: contributions last year, moonlight-ai installs, years shipping since 2021" width="100%" />
+  <img src="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/output/stats.svg" alt="By the numbers: contributions last year, moonlight-ai installs, years shipping since 2021" width="100%" />
 </p>
 
 ###
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/main/assets/languages.svg" alt="Language split across owner repositories, private repos included" width="100%" />
+  <img src="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/output/languages.svg" alt="Language split across owner repositories, private repos included" width="100%" />
 </p>
 
 ###
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/main/assets/building.svg" alt="Currently building: Aikyat Mail, the reference-card protocol, Throughline" width="100%" />
+  <img src="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/output/building.svg" alt="Currently building: Aikyat Mail, the reference-card protocol, Throughline" width="100%" />
 </p>
 
 ###
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/main/assets/graph.svg" alt="A spaceship flies across my contribution graph, turning each green day into a star" width="100%" />
+  <img src="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/output/graph.svg" alt="A spaceship flies across my contribution graph, turning each green day into a star" width="100%" />
 </p>
