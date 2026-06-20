@@ -1,5 +1,8 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/output/banner.svg" alt="ravi@boundary: access granted to the reader, denied to everyone else" width="100%" />
+  <picture>
+    <source media="(max-width: 600px)" srcset="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/output/banner-mobile.svg" />
+    <img src="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/output/banner.svg" alt="ravi@boundary: access granted to the reader, denied to everyone else" width="100%" />
+  </picture>
 </p>
 
 ###
@@ -49,19 +52,28 @@
 ###
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/output/stats.svg" alt="By the numbers: contributions last year, moonlight-ai installs, years shipping since 2021" width="100%" />
+  <picture>
+    <source media="(max-width: 600px)" srcset="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/output/stats-mobile.svg" />
+    <img src="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/output/stats.svg" alt="By the numbers: contributions last year, moonlight-ai installs, years shipping since 2021" width="100%" />
+  </picture>
 </p>
 
 ###
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/output/languages.svg" alt="Language split across owner repositories, private repos included" width="100%" />
+  <picture>
+    <source media="(max-width: 600px)" srcset="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/output/languages-mobile.svg" />
+    <img src="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/output/languages.svg" alt="Language split across owner repositories, private repos included" width="100%" />
+  </picture>
 </p>
 
 ###
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/output/building.svg" alt="Currently building: Aikyat Mail, the reference-card protocol, Throughline" width="100%" />
+  <picture>
+    <source media="(max-width: 600px)" srcset="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/output/building-mobile.svg" />
+    <img src="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/output/building.svg" alt="Currently building: Aikyat Mail, the reference-card protocol, Throughline" width="100%" />
+  </picture>
 </p>
 
 ###
