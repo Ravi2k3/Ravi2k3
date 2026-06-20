@@ -767,25 +767,24 @@ def build_languages_svg(
     return "\n".join(parts)
 
 
-# Boundary contribution panel. GitHub renders SVGs as <img>, so the whole
-# animation is baked into CSS @keyframes (no JavaScript runs). A coral boundary
-# line stands at the center of the real contribution grid and pulses waves of
-# light outward to both sides; the days brighten as each wave passes.
-BND_EMPTY: str = "#161b22"
-BND_GREENS: List[str] = ["#0e4429", "#006d32", "#26a641", "#39d353"]
-BND_WIDTH: int = 1200
-BND_HEIGHT: int = 210
-BND_CELL: int = 15
-BND_GAP: int = 4
-BND_PITCH: int = BND_CELL + BND_GAP
-BND_ORIGIN_X: int = 98
-BND_ORIGIN_Y: int = 48
-BND_ROWS: int = 7
-BND_PERIOD_S: float = 6.0
-BND_WAVE_END: float = 0.74  # phase at which the wave reaches the edges
+# Aurora contribution panel. GitHub renders SVGs as <img>, so the motion is pure
+# CSS. The cells are an SVG mask (crisp edges, brightness by real activity) and a
+# Gemini-style gradient (blue, violet, magenta, rose) flows across them, so the
+# whole graph shimmers with the real days glowing brightest.
+AUR_WIDTH: int = 1200
+AUR_HEIGHT: int = 200
+AUR_CELL: int = 15
+AUR_GAP: int = 4
+AUR_PITCH: int = AUR_CELL + AUR_GAP
+AUR_ORIGIN_X: int = 98
+AUR_ORIGIN_Y: int = 36
+AUR_ROWS: int = 7
+AUR_PERIOD_S: float = 16.0
+AUR_LEVEL_ALPHA: Dict[int, float] = {-1: 0.16, 0: 0.55, 1: 0.72, 2: 0.88, 3: 1.0}
+AUR_CYCLE: List[str] = ["#4285F4", "#7C6CF0", "#C56BB0", "#E8769A"]
 
 
-def contribution_level(
+def aurora_level(
     count: int,
 ) -> int:
     if count <= 0:
@@ -799,114 +798,53 @@ def contribution_level(
     return 3
 
 
-def build_boundary_svg(
+def build_aurora_svg(
     weeks: List[List[int]],
 ) -> str:
     cols = len(weeks)
-    center = cols // 2
-    max_dist = max(center, cols - 1 - center)
-    boundary_x = BND_ORIGIN_X + center * BND_PITCH + BND_CELL / 2
-    top_y = BND_ORIGIN_Y - 10
-    bot_y = BND_ORIGIN_Y + BND_ROWS * BND_PITCH - BND_GAP + 10
-    span = bot_y - top_y
-    travel = (cols - 1 - center) * BND_PITCH + 16
+    grid_w = cols * AUR_PITCH - AUR_GAP
+    grid_h = AUR_ROWS * AUR_PITCH - AUR_GAP
 
-    wave_keyframes: List[str] = []
-    distance_rules: List[str] = []
-    for distance in range(max_dist + 1):
-        peak = 6 + (distance / max_dist) * (BND_WAVE_END * 100 - 6)
-        lo = max(0.0, peak - 7)
-        hi = min(100.0, peak + 7)
-        wave_keyframes.append(
-            f"@keyframes w{distance}{{0%{{opacity:.45}}{lo:.1f}%{{opacity:.45}}"
-            f"{peak:.1f}%{{opacity:1}}{hi:.1f}%{{opacity:.45}}100%{{opacity:.45}}}}"
-        )
-        distance_rules.append(f".d{distance}{{animation-name:w{distance}}}")
-
-    cells: List[str] = []
+    mask_cells: List[str] = []
     for col, week in enumerate(weeks):
-        cx = BND_ORIGIN_X + col * BND_PITCH
-        distance = abs(col - center)
+        cx = AUR_ORIGIN_X + col * AUR_PITCH
         for row, count in enumerate(week):
-            cy = BND_ORIGIN_Y + row * BND_PITCH
-            level = contribution_level(count)
-            fill = BND_EMPTY if level < 0 else BND_GREENS[level]
-            cells.append(
-                f'<rect class="c d{distance}" x="{cx}" y="{cy}" width="{BND_CELL}" '
-                f'height="{BND_CELL}" rx="3" fill="{fill}"/>'
+            cy = AUR_ORIGIN_Y + row * AUR_PITCH
+            alpha = AUR_LEVEL_ALPHA[aurora_level(count)]
+            mask_cells.append(
+                f'<rect x="{cx}" y="{cy}" width="{AUR_CELL}" height="{AUR_CELL}" rx="3.5" '
+                f'fill="#fff" fill-opacity="{alpha}"/>'
             )
 
-    wave_pct = BND_WAVE_END * 100
-    sweep_right = (
-        "@keyframes sweepR{0%{transform:translateX(0);opacity:0}5%{opacity:.85}"
-        f"{wave_pct:.0f}%{{transform:translateX({travel:.0f}px);opacity:.6}}"
-        f"{wave_pct + 5:.0f}%{{transform:translateX({travel + 14:.0f}px);opacity:0}}"
-        "100%{transform:translateX(0);opacity:0}}"
+    palette = AUR_CYCLE + AUR_CYCLE + [AUR_CYCLE[0]]
+    stops = "".join(
+        f'<stop offset="{index / (len(palette) - 1):.4f}" stop-color="{color}"/>'
+        for index, color in enumerate(palette)
     )
-    sweep_left = (
-        "@keyframes sweepL{0%{transform:translateX(0);opacity:0}5%{opacity:.85}"
-        f"{wave_pct:.0f}%{{transform:translateX(-{travel:.0f}px);opacity:.6}}"
-        f"{wave_pct + 5:.0f}%{{transform:translateX(-{travel + 14:.0f}px);opacity:0}}"
-        "100%{transform:translateX(0);opacity:0}}"
+    flow_grad = (
+        '<linearGradient id="flow" x1="0" y1="0" x2="1" y2="0.18">'
+        + stops
+        + "</linearGradient>"
     )
-    boundary_pulse = (
-        "@keyframes bpulse{0%{opacity:.5}4%{opacity:1}16%{opacity:.6}100%{opacity:.5}}"
-    )
-    node_slide = (
-        f"@keyframes nslide{{0%{{transform:translateY(0)}}"
-        f"100%{{transform:translateY({span - 4:.0f}px)}}}}"
-    )
+    mask = f'<mask id="grid">{"".join(mask_cells)}</mask>'
     style = (
         "<style>"
-        ".c{animation-duration:6s;animation-iteration-count:infinite;"
-        "animation-timing-function:ease-in-out}"
-        ".front{animation:6s linear infinite}"
-        ".frontR{animation-name:sweepR}.frontL{animation-name:sweepL}"
-        ".boundary{animation:bpulse 6s ease-in-out infinite}"
-        ".node{animation:nslide 3s ease-in-out infinite alternate}"
-        + "".join(distance_rules)
-        + "".join(wave_keyframes)
-        + sweep_right
-        + sweep_left
-        + boundary_pulse
-        + node_slide
-        + "</style>"
+        f".flow{{animation:flow {AUR_PERIOD_S}s linear infinite}}"
+        f"@keyframes flow{{0%{{transform:translateX(0)}}"
+        f"100%{{transform:translateX({grid_w}px)}}}}"
+        "</style>"
     )
-    defs = (
-        "<defs>"
-        '<filter id="fglow" x="-60%" y="-30%" width="220%" height="160%">'
-        '<feGaussianBlur stdDeviation="4"/></filter>'
-        '<filter id="bglow" x="-300%" y="-30%" width="700%" height="160%">'
-        '<feGaussianBlur stdDeviation="3.5"/></filter>'
-        "</defs>"
-    )
-    front_left = (
-        f'<rect class="front frontL" x="{boundary_x - 9:.1f}" y="{top_y:.0f}" width="9" '
-        f'height="{span:.0f}" rx="4.5" fill="{ORANGE}" filter="url(#fglow)"/>'
-    )
-    front_right = (
-        f'<rect class="front frontR" x="{boundary_x:.1f}" y="{top_y:.0f}" width="9" '
-        f'height="{span:.0f}" rx="4.5" fill="{ORANGE}" filter="url(#fglow)"/>'
-    )
-    boundary = (
-        f'<g class="boundary">'
-        f'<line x1="{boundary_x:.1f}" y1="{top_y:.0f}" x2="{boundary_x:.1f}" y2="{bot_y:.0f}" '
-        f'stroke="{ORANGE}" stroke-width="7" filter="url(#bglow)" opacity="0.65"/>'
-        f'<line x1="{boundary_x:.1f}" y1="{top_y:.0f}" x2="{boundary_x:.1f}" y2="{bot_y:.0f}" '
-        f'stroke="{ORANGE}" stroke-width="2"/>'
-        f"</g>"
-    )
-    node = (
-        f'<circle class="node" cx="{boundary_x:.1f}" cy="{top_y + 2:.0f}" r="4" fill="#ffd9c9"/>'
+    flow_rect = (
+        f'<rect class="flow" x="{AUR_ORIGIN_X - grid_w}" y="{AUR_ORIGIN_Y}" '
+        f'width="{2 * grid_w}" height="{grid_h}" fill="url(#flow)"/>'
     )
     return (
-        f'<svg xmlns="http://www.w3.org/2000/svg" width="{BND_WIDTH}" height="{BND_HEIGHT}" '
-        f'viewBox="0 0 {BND_WIDTH} {BND_HEIGHT}" role="img" '
-        f'aria-label="A boundary line at the center of the contribution graph, pulsing waves of light to both sides">'
-        f"{defs}{style}"
-        f'<rect width="{BND_WIDTH}" height="{BND_HEIGHT}" fill="{BG}"/>'
-        f'<g>{"".join(cells)}</g>'
-        f"{front_left}{front_right}{boundary}{node}"
+        f'<svg xmlns="http://www.w3.org/2000/svg" width="{AUR_WIDTH}" height="{AUR_HEIGHT}" '
+        f'viewBox="0 0 {AUR_WIDTH} {AUR_HEIGHT}" role="img" '
+        f'aria-label="My contribution graph with a Gemini-style gradient flowing across it">'
+        f"<defs>{flow_grad}{mask}{style}</defs>"
+        f'<rect width="{AUR_WIDTH}" height="{AUR_HEIGHT}" fill="{BG}"/>'
+        f'<g mask="url(#grid)">{flow_rect}</g>'
         f"</svg>"
     )
 
@@ -930,7 +868,7 @@ def render_panels(
         (out_dir / "building.svg", build_building_svg(font_data)),
         (out_dir / "stats.svg", build_stats_svg(profile_data, font_data)),
         (out_dir / "languages.svg", build_languages_svg(profile_data, font_data)),
-        (out_dir / "boundary.svg", build_boundary_svg(profile_data.calendar_weeks)),
+        (out_dir / "graph.svg", build_aurora_svg(profile_data.calendar_weeks)),
     ]
 
     written_paths: List[Path] = []

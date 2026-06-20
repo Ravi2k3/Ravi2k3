@@ -67,5 +67,5 @@
 ###
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/main/assets/boundary.svg" alt="A boundary line at the center of my contribution graph, pulsing waves of light to both sides" width="100%" />
+  <img src="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/main/assets/graph.svg" alt="My contribution graph with a Gemini-style gradient flowing across it" width="100%" />
 </p>
