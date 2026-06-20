@@ -767,29 +767,31 @@ def build_languages_svg(
     return "\n".join(parts)
 
 
-# Ignition contribution panel (frontend-design pass). GitHub renders SVGs as
-# <img>, so all motion is baked CSS. The real green graph is crossed by the Gemini
-# spark itself (white-hot core, aurora rim, fading after-image trail, soft bloom);
-# on emphasized easing it glides across and each column blooms top-to-bottom from
-# green box into a spring-born, slowly rotating sparkle. A faint aurora bloom under
-# the active cluster adds depth, and the loop exhales back to green left-to-right.
-IG_EMPTY: str = "#161b22"
-IG_GREENS: List[str] = ["#0e4429", "#006d32", "#26a641", "#39d353"]
-IG_PALETTE: List[str] = ["#4285F4", "#7C6CF0", "#C56BB0", "#E8769A"]
-IG_WIDTH: int = 1200
-IG_HEIGHT: int = 260
-IG_PITCH: int = 21
-IG_CELL: int = 15
-IG_ORIGIN_X: int = 44
-IG_ORIGIN_Y: int = 58
-IG_ROWS: int = 7
-IG_PERIOD_S: float = 10.0
-IG_CROSS_END: float = 0.58
-IG_RESET_START: float = 0.74
-IG_LEVEL_RADIUS: Dict[int, float] = {0: 8.5, 1: 9.5, 2: 10.5, 3: 11.5}
+# Spaceship-route panel (frontend-design pass). GitHub renders SVGs as <img>, so
+# all motion is baked CSS. A little spaceship flies the snake's serpentine route
+# through the real green graph (row by row, banking at each turn), igniting every
+# green day into a spring-born, slowly rotating Gemini star as it passes over it.
+# A faint aurora bloom under the active cluster adds depth; the loop exhales back to
+# green left-to-right.
+SH_EMPTY: str = "#161b22"
+SH_GREENS: List[str] = ["#0e4429", "#006d32", "#26a641", "#39d353"]
+SH_PALETTE: List[str] = ["#4285F4", "#7C6CF0", "#C56BB0", "#E8769A"]
+SH_W: int = 1200
+SH_H: int = 260
+SH_PITCH: int = 21
+SH_CELL: int = 15
+SH_ORIGIN_X: int = 44
+SH_ORIGIN_Y: int = 58
+SH_ROWS: int = 7
+SH_PERIOD_S: float = 14.0
+SH_SWEEP_TOTAL: float = 0.66
+SH_ENTRY_W: float = 0.4
+SH_CONN_W: float = 0.18
+SH_SHIP_SCALE: float = 1.3
+SH_LEVEL_RADIUS: Dict[int, float] = {0: 8.5, 1: 9.5, 2: 10.5, 3: 11.5}
 
 
-def ignite_level(
+def ship_level(
     count: int,
 ) -> int:
     if count <= 0:
@@ -803,7 +805,7 @@ def ignite_level(
     return 3
 
 
-def ignite_lerp_hex(
+def ship_lerp_hex(
     a: str,
     b: str,
     t: float,
@@ -813,20 +815,20 @@ def ignite_lerp_hex(
     return "#" + "".join(f"{round(x + (y - x) * t):02x}" for x, y in zip(av, bv))
 
 
-def ignite_color(
+def ship_color(
     col: int,
     row: int,
 ) -> str:
     cycle = 11.0
     frac = ((col + row * 0.7) % cycle) / cycle
-    palette = IG_PALETTE + [IG_PALETTE[0]]
+    palette = SH_PALETTE + [SH_PALETTE[0]]
     span = len(palette) - 1
     pos = frac * span
     i = min(int(pos), span - 1)
-    return ignite_lerp_hex(palette[i], palette[i + 1], pos - i)
+    return ship_lerp_hex(palette[i], palette[i + 1], pos - i)
 
 
-def ignite_star_path(
+def ship_star_path(
     radius: float,
     pinch: float = 0.12,
 ) -> str:
@@ -835,126 +837,171 @@ def ignite_star_path(
     return f"M0,{-r}Q{c},{-c} {r},0Q{c},{c} 0,{r}Q{-c},{c} {-r},0Q{-c},{-c} 0,{-r}Z"
 
 
-def ignite_arrival(
-    cell_x: float,
-) -> float:
-    return IG_CROSS_END * (cell_x + 150.0) / (IG_WIDTH + 300.0)
+def ship_schedule(
+    cols: int,
+) -> Tuple[List[float], float, List[Tuple[float, float, float]]]:
+    x_left = SH_ORIGIN_X + SH_CELL / 2
+    x_right = SH_ORIGIN_X + (cols - 1) * SH_PITCH + SH_CELL / 2
+
+    def y(r: int) -> float:
+        return SH_ORIGIN_Y + r * SH_PITCH + SH_CELL / 2
+
+    total_w = SH_ENTRY_W + SH_ROWS * 1.0 + (SH_ROWS - 1) * SH_CONN_W
+    unit = SH_SWEEP_TOTAL / total_w
+    waypoints: List[Tuple[float, float, float]] = [(0.0, -170.0, y(0))]
+    row_starts: List[float] = []
+    p = SH_ENTRY_W * unit
+    waypoints.append((p, x_left, y(0)))
+    for r in range(SH_ROWS):
+        row_starts.append(p)
+        x_end = x_right if r % 2 == 0 else x_left
+        p += unit
+        waypoints.append((p, x_end, y(r)))
+        if r < SH_ROWS - 1:
+            p += SH_CONN_W * unit
+            waypoints.append((p, x_end, y(r + 1)))
+    waypoints.append((SH_SWEEP_TOTAL + 0.06, SH_W + 170.0, y(SH_ROWS - 1)))
+    waypoints.append((1.0, SH_W + 170.0, y(SH_ROWS - 1)))
+    return row_starts, unit, waypoints
 
 
-def build_ignite_svg(
+def ship_flip_keyframes(
+    row_starts: List[float],
+    unit: float,
+) -> str:
+    stops = ["0%{transform:scaleX(1)}"]
+    for r in range(SH_ROWS):
+        sx = 1 if r % 2 == 0 else -1
+        stops.append(f"{row_starts[r] * 100:.1f}%{{transform:scaleX({sx})}}")
+        stops.append(f"{(row_starts[r] + unit) * 100:.1f}%{{transform:scaleX({sx})}}")
+    stops.append("100%{transform:scaleX(1)}")
+    return "@keyframes flip{" + "".join(stops) + "}"
+
+
+def ship_art() -> str:
+    return (
+        '<ellipse cx="-3" cy="2" rx="30" ry="15" fill="url(#sg)"/>'
+        '<path class="flame" d="M-19,-3.4 L-37,0 L-19,3.4 Z" fill="url(#fl)"/>'
+        '<path d="M-7,7 L-14,13 L-1,7 Z" fill="#8893ab"/>'
+        '<path d="M-7,-7 L-16,-15 L-1,-7 Z" fill="#a7b2cb"/>'
+        '<path d="M22,0 C13,-9 -9,-10 -18,-6 C-22,-4 -22,4 -18,6 C-9,10 13,9 22,0 Z" '
+        'fill="url(#hull)" stroke="#e7edfa" stroke-width="0.5"/>'
+        '<ellipse cx="6.5" cy="-1.6" rx="7.2" ry="3.4" fill="#6db6ff"/>'
+        '<ellipse cx="8.5" cy="-2.6" rx="2.6" ry="1.2" fill="#e6f3ff"/>'
+        '<circle cx="-9" cy="0.6" r="1.4" fill="#9aa6c0"/>'
+        '<circle cx="-3.5" cy="1" r="1.4" fill="#9aa6c0"/>'
+    )
+
+
+def build_ship_svg(
     weeks: List[List[int]],
 ) -> str:
     cols = len(weeks)
-    grid_h = (IG_ROWS - 1) * IG_PITCH + IG_CELL
-    mid_y = IG_ORIGIN_Y + grid_h / 2
+    grid_h = (SH_ROWS - 1) * SH_PITCH + SH_CELL
+    mid_y = SH_ORIGIN_Y + grid_h / 2
+    row_starts, unit, waypoints = ship_schedule(cols)
 
     keyframes: List[str] = []
     cells: List[str] = []
     empties: List[str] = []
     filled_xs: List[float] = []
     idx = 0
-
     for col, week in enumerate(weeks):
-        cx = IG_ORIGIN_X + col * IG_PITCH
-        phi_col = ignite_arrival(cx + IG_CELL / 2)
-        psi = (IG_RESET_START + (col / cols) * 0.16) * 100
+        cx = SH_ORIGIN_X + col * SH_PITCH
+        psi = (0.80 + (col / cols) * 0.12) * 100
         for row, count in enumerate(week):
-            cy = IG_ORIGIN_Y + row * IG_PITCH
-            level = ignite_level(count)
+            cy = SH_ORIGIN_Y + row * SH_PITCH
+            level = ship_level(count)
             if level < 0:
                 empties.append(
-                    f'<rect x="{cx}" y="{cy}" width="{IG_CELL}" height="{IG_CELL}" rx="3.5" fill="{IG_EMPTY}"/>'
+                    f'<rect x="{cx}" y="{cy}" width="{SH_CELL}" height="{SH_CELL}" rx="3.5" fill="{SH_EMPTY}"/>'
                 )
                 continue
-            phi = (phi_col + row * 0.006) * 100  # row-stagger: column blooms top-down
+            frac = col / (cols - 1) if row % 2 == 0 else (cols - 1 - col) / (cols - 1)
+            phi = (row_starts[row] + frac * unit) * 100
             keyframes.append(
                 f"@keyframes g{idx}{{0%{{opacity:1}}{phi:.1f}%{{opacity:1}}"
-                f"{phi + 3:.1f}%{{opacity:0}}{psi:.1f}%{{opacity:0}}"
+                f"{phi + 2.5:.1f}%{{opacity:0}}{psi:.1f}%{{opacity:0}}"
                 f"{psi + 5:.1f}%{{opacity:1}}100%{{opacity:1}}}}"
             )
             keyframes.append(
                 f"@keyframes s{idx}{{0%{{opacity:0;transform:scale(.2)}}"
                 f"{phi:.1f}%{{opacity:0;transform:scale(.2)}}"
-                f"{phi + 2:.1f}%{{opacity:1;transform:scale(1.28)}}"
-                f"{phi + 5:.1f}%{{opacity:1;transform:scale(.94)}}"
-                f"{phi + 7:.1f}%{{opacity:1;transform:scale(1)}}"
+                f"{phi + 2:.1f}%{{opacity:1;transform:scale(1.3)}}"
+                f"{phi + 4.5:.1f}%{{opacity:1;transform:scale(.93)}}"
+                f"{phi + 6.5:.1f}%{{opacity:1;transform:scale(1)}}"
                 f"{psi:.1f}%{{opacity:1;transform:scale(1)}}"
                 f"{psi + 4:.1f}%{{opacity:0;transform:scale(.4)}}"
                 f"100%{{opacity:0;transform:scale(.2)}}}}"
             )
-            ccx = cx + IG_CELL / 2
-            ccy = cy + IG_CELL / 2
+            ccx = cx + SH_CELL / 2
+            ccy = cy + SH_CELL / 2
             filled_xs.append(ccx)
             spin = "spA" if (col + row) % 2 == 0 else "spB"
             cells.append(
                 f'<g transform="translate({ccx:.1f},{ccy:.1f})">'
-                f'<rect class="grn" style="animation-name:g{idx}" x="{-IG_CELL / 2}" y="{-IG_CELL / 2}" '
-                f'width="{IG_CELL}" height="{IG_CELL}" rx="3.5" fill="{IG_GREENS[level]}"/>'
+                f'<rect class="grn" style="animation-name:g{idx}" x="{-SH_CELL / 2}" y="{-SH_CELL / 2}" '
+                f'width="{SH_CELL}" height="{SH_CELL}" rx="3.5" fill="{SH_GREENS[level]}"/>'
                 f'<g class="cw" style="animation-name:s{idx}">'
-                f'<path class="{spin}" d="{ignite_star_path(IG_LEVEL_RADIUS[level])}" fill="{ignite_color(col, row)}"/>'
+                f'<path class="{spin}" d="{ship_star_path(SH_LEVEL_RADIUS[level])}" fill="{ship_color(col, row)}"/>'
                 f"</g></g>"
             )
             idx += 1
 
-    cluster_x = sum(filled_xs) / len(filled_xs) if filled_xs else IG_WIDTH / 2
-
-    drive = (
-        "@keyframes drive{0%{transform:translateX(-150px)}"
-        f"{IG_CROSS_END * 100:.0f}%{{transform:translateX({IG_WIDTH + 150}px)}}"
-        f"100%{{transform:translateX({IG_WIDTH + 150}px)}}}}"
+    cluster_x = sum(filled_xs) / len(filled_xs) if filled_xs else SH_W / 2
+    drive_stops = "".join(
+        f"{ph * 100:.1f}%{{transform:translate({x:.1f}px,{y:.1f}px)}}" for ph, x, y in waypoints
     )
+    drive = f"@keyframes drive{{{drive_stops}}}"
+    flip = ship_flip_keyframes(row_starts, unit)
     spin_a = "@keyframes spA{0%{transform:rotate(0) scale(.95)}50%{transform:rotate(180deg) scale(1.06)}100%{transform:rotate(360deg) scale(.95)}}"
     spin_b = "@keyframes spB{0%{transform:rotate(0) scale(1.06)}50%{transform:rotate(-180deg) scale(.95)}100%{transform:rotate(-360deg) scale(1.06)}}"
-    cspin = "@keyframes cspin{from{transform:rotate(0)}to{transform:rotate(360deg)}}"
+    flick = "@keyframes flick{0%{transform:scaleX(.8);opacity:.7}100%{transform:scaleX(1.18);opacity:1}}"
     style = (
         "<style>"
-        f".grn{{animation-duration:{IG_PERIOD_S}s;animation-iteration-count:infinite;animation-timing-function:cubic-bezier(.4,0,.2,1)}}"
-        f".cw{{transform-box:fill-box;transform-origin:center;animation-duration:{IG_PERIOD_S}s;"
+        f".grn{{animation-duration:{SH_PERIOD_S}s;animation-iteration-count:infinite;animation-timing-function:cubic-bezier(.4,0,.2,1)}}"
+        f".cw{{transform-box:fill-box;transform-origin:center;animation-duration:{SH_PERIOD_S}s;"
         "animation-iteration-count:infinite;animation-timing-function:cubic-bezier(.34,1.56,.64,1)}"
         ".spA,.spB{transform-box:fill-box;transform-origin:center}"
         ".spA{animation:spA 15s linear infinite}.spB{animation:spB 18s linear infinite}"
-        f".comet{{animation:drive {IG_PERIOD_S}s cubic-bezier(.45,0,.55,1) infinite}}"
-        ".cstar{transform-box:fill-box;transform-origin:center;animation:cspin 5s linear infinite}"
+        f".comet{{animation:drive {SH_PERIOD_S}s linear infinite}}"
+        f".ship{{transform-box:fill-box;transform-origin:center;animation:flip {SH_PERIOD_S}s linear infinite}}"
+        ".flame{transform-box:fill-box;transform-origin:100% 50%;animation:flick .32s ease-in-out infinite alternate}"
         + "".join(keyframes)
         + drive
+        + flip
         + spin_a
         + spin_b
-        + cspin
+        + flick
         + "</style>"
     )
     defs = (
         "<defs>"
-        '<radialGradient id="cluster"><stop offset="0" stop-color="#6f6cf0" stop-opacity="0.18"/>'
+        '<radialGradient id="cluster"><stop offset="0" stop-color="#6f6cf0" stop-opacity="0.16"/>'
         '<stop offset="1" stop-color="#6f6cf0" stop-opacity="0"/></radialGradient>'
-        '<radialGradient id="bloom"><stop offset="0" stop-color="#aab4ff" stop-opacity="0.4"/>'
-        '<stop offset="0.5" stop-color="#8f7cf0" stop-opacity="0.16"/>'
-        '<stop offset="1" stop-color="#8f7cf0" stop-opacity="0"/></radialGradient>'
+        '<linearGradient id="hull" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6f8ff"/>'
+        '<stop offset="0.55" stop-color="#cdd6e8"/><stop offset="1" stop-color="#9aa6c0"/></linearGradient>'
+        '<radialGradient id="sg"><stop offset="0" stop-color="#9fb4ff" stop-opacity="0.45"/>'
+        '<stop offset="1" stop-color="#9fb4ff" stop-opacity="0"/></radialGradient>'
+        '<linearGradient id="fl" x1="1" y1="0" x2="0" y2="0"><stop offset="0" stop-color="#bdf3ff" stop-opacity="0.95"/>'
+        '<stop offset="0.5" stop-color="#7ab8ff" stop-opacity="0.5"/><stop offset="1" stop-color="#7ab8ff" stop-opacity="0"/></linearGradient>'
         + style
         + "</defs>"
     )
-    ghosts = "".join(
-        f'<path d="{ignite_star_path(13 - i * 2.4)}" fill="#cdd7ff" opacity="{0.32 - i * 0.08:.2f}" '
-        f'transform="translate({-26 - i * 24},0)"/>'
-        for i in range(3)
-    )
-    comet = (
-        f'<g class="comet"><g transform="translate(0,{mid_y:.1f})">'
-        f'<ellipse cx="0" cy="0" rx="58" ry="50" fill="url(#bloom)"/>'
-        f"{ghosts}"
-        f'<path class="cstar" d="{ignite_star_path(19)}" fill="#b9c4ff"/>'
-        f'<path class="cstar" d="{ignite_star_path(12)}" fill="#ffffff"/>'
-        f"</g></g>"
+    ship = (
+        f'<g class="comet"><g transform="scale({SH_SHIP_SCALE})">'
+        f'<g class="ship">{ship_art()}</g></g></g>'
     )
     return (
-        f'<svg xmlns="http://www.w3.org/2000/svg" width="{IG_WIDTH}" height="{IG_HEIGHT}" '
-        f'viewBox="0 0 {IG_WIDTH} {IG_HEIGHT}" role="img" '
-        f'aria-label="The Gemini spark glides across my contribution graph, igniting each green day into a sparkle">'
+        f'<svg xmlns="http://www.w3.org/2000/svg" width="{SH_W}" height="{SH_H}" '
+        f'viewBox="0 0 {SH_W} {SH_H}" role="img" '
+        f'aria-label="A spaceship flies across my contribution graph, turning each green day into a star">'
         f"{defs}"
-        f'<rect width="{IG_WIDTH}" height="{IG_HEIGHT}" fill="{BG}"/>'
+        f'<rect width="{SH_W}" height="{SH_H}" fill="{BG}"/>'
         f'<ellipse cx="{cluster_x:.0f}" cy="{mid_y:.0f}" rx="300" ry="96" fill="url(#cluster)"/>'
         f'<g>{"".join(empties)}</g>'
         f'<g>{"".join(cells)}</g>'
-        f"{comet}"
+        f"{ship}"
         f"</svg>"
     )
 
@@ -978,7 +1025,7 @@ def render_panels(
         (out_dir / "building.svg", build_building_svg(font_data)),
         (out_dir / "stats.svg", build_stats_svg(profile_data, font_data)),
         (out_dir / "languages.svg", build_languages_svg(profile_data, font_data)),
-        (out_dir / "graph.svg", build_ignite_svg(profile_data.calendar_weeks)),
+        (out_dir / "graph.svg", build_ship_svg(profile_data.calendar_weeks)),
     ]
 
     written_paths: List[Path] = []
