@@ -767,24 +767,27 @@ def build_languages_svg(
     return "\n".join(parts)
 
 
-# Gemini-sparkle contribution panel. GitHub renders SVGs as <img>, so the motion
-# is pure CSS. Every day is a four-point Gemini star sized by real activity; all
-# stars cycle through the aurora palette (color flows across the field via a
-# per-column delay) and the real contribution days slowly rotate and twinkle.
-STAR_PALETTE: List[str] = ["#4285F4", "#7C6CF0", "#C56BB0", "#E8769A"]
-STAR_WIDTH: int = 1200
-STAR_HEIGHT: int = 250
-STAR_PITCH: int = 21
-STAR_ORIGIN_X: int = 44
-STAR_ORIGIN_Y: int = 50
-STAR_ROWS: int = 7
-STAR_HUE_S: float = 16.0
-STAR_SPIN_S: float = 12.0
-STAR_RADIUS: Dict[int, float] = {-1: 3.6, 0: 7.0, 1: 8.5, 2: 10.0, 3: 11.5}
-STAR_OPACITY: Dict[int, float] = {-1: 0.5, 0: 0.85, 1: 0.92, 2: 1.0, 3: 1.0}
+# Comet contribution panel. GitHub renders SVGs as <img>, so the whole thing is
+# baked into CSS (no JavaScript). The real green contribution graph is drawn, and
+# a glowing Gemini comet glides across, converting each green box into a rotating
+# Gemini sparkle in its wake, then the graph resets and it loops.
+CM_EMPTY: str = "#161b22"
+CM_GREENS: List[str] = ["#0e4429", "#006d32", "#26a641", "#39d353"]
+CM_PALETTE: List[str] = ["#4285F4", "#7C6CF0", "#C56BB0", "#E8769A"]
+CM_WIDTH: int = 1200
+CM_HEIGHT: int = 250
+CM_PITCH: int = 21
+CM_CELL: int = 15
+CM_ORIGIN_X: int = 44
+CM_ORIGIN_Y: int = 50
+CM_ROWS: int = 7
+CM_PERIOD_S: float = 9.0
+CM_SPIN_S: float = 7.0
+CM_CROSS_END: float = 0.70
+CM_LEVEL_RADIUS: Dict[int, float] = {0: 8.5, 1: 9.5, 2: 10.5, 3: 11.5}
 
 
-def star_level(
+def comet_level(
     count: int,
 ) -> int:
     if count <= 0:
@@ -798,7 +801,35 @@ def star_level(
     return 3
 
 
-def star_path(
+def lerp_hex(
+    a: str,
+    b: str,
+    t: float,
+) -> str:
+    ar, ag, ab = int(a[1:3], 16), int(a[3:5], 16), int(a[5:7], 16)
+    br, bg, bb = int(b[1:3], 16), int(b[3:5], 16), int(b[5:7], 16)
+    r = round(ar + (br - ar) * t)
+    g = round(ag + (bg - ag) * t)
+    bl = round(ab + (bb - ab) * t)
+    return f"#{r:02x}{g:02x}{bl:02x}"
+
+
+def cell_color(
+    col: int,
+    row: int,
+) -> str:
+    # Diagonal aurora bands so the whole field shows the full palette, not just
+    # the warm end where the dense columns happen to fall.
+    cycle = 11.0
+    frac = ((col + row * 0.7) % cycle) / cycle
+    palette = CM_PALETTE + [CM_PALETTE[0]]
+    span = len(palette) - 1
+    pos = frac * span
+    index = min(int(pos), span - 1)
+    return lerp_hex(palette[index], palette[index + 1], pos - index)
+
+
+def comet_star_path(
     radius: float,
 ) -> str:
     r = round(radius, 1)
@@ -806,61 +837,116 @@ def star_path(
     return f"M0,{-r}Q{c},{-c} {r},0Q{c},{c} 0,{r}Q{-c},{c} {-r},0Q{-c},{-c} 0,{-r}Z"
 
 
-def build_stars_svg(
+def comet_arrival_phase(
+    cell_x: float,
+) -> float:
+    return CM_CROSS_END * (cell_x + 140.0) / (CM_WIDTH + 280.0)
+
+
+def build_comet_svg(
     weeks: List[List[int]],
 ) -> str:
     cols = len(weeks)
-    stars: List[str] = []
-    for col, week in enumerate(weeks):
-        cx = STAR_ORIGIN_X + col * STAR_PITCH
-        hue_delay = -(col / cols) * STAR_HUE_S
-        for row, count in enumerate(week):
-            cy = STAR_ORIGIN_Y + row * STAR_PITCH
-            level = star_level(count)
-            path = star_path(STAR_RADIUS[level])
-            opacity = STAR_OPACITY[level]
-            if level < 0:
-                stars.append(
-                    f'<g transform="translate({cx},{cy})">'
-                    f'<path class="s e" style="animation-delay:{hue_delay:.2f}s" '
-                    f'opacity="{opacity}" d="{path}"/></g>'
-                )
-            else:
-                spin_delay = -((col * 1.3 + row * 2.1) % STAR_SPIN_S)
-                stars.append(
-                    f'<g transform="translate({cx},{cy})">'
-                    f'<path class="s f" '
-                    f'style="animation-delay:{hue_delay:.2f}s,{spin_delay:.2f}s" '
-                    f'opacity="{opacity}" d="{path}"/></g>'
-                )
+    grid_h = CM_ROWS * CM_PITCH - (CM_PITCH - CM_CELL)
+    mid_y = CM_ORIGIN_Y + grid_h / 2
 
-    hue = (
-        "@keyframes hue{"
-        f"0%{{fill:{STAR_PALETTE[0]}}}25%{{fill:{STAR_PALETTE[1]}}}"
-        f"50%{{fill:{STAR_PALETTE[2]}}}75%{{fill:{STAR_PALETTE[3]}}}"
-        f"100%{{fill:{STAR_PALETTE[0]}}}}}"
+    keyframes: List[str] = []
+    seen_cols: set = set()
+    cells: List[str] = []
+    empties: List[str] = []
+
+    for col, week in enumerate(weeks):
+        cx = CM_ORIGIN_X + col * CM_PITCH
+        phase = comet_arrival_phase(cx + CM_CELL / 2)
+        gp = phase * 100
+        for row, count in enumerate(week):
+            cy = CM_ORIGIN_Y + row * CM_PITCH
+            level = comet_level(count)
+            if level < 0:
+                empties.append(
+                    f'<rect x="{cx}" y="{cy}" width="{CM_CELL}" height="{CM_CELL}" '
+                    f'rx="3.5" fill="{CM_EMPTY}"/>'
+                )
+                continue
+            if col not in seen_cols:
+                seen_cols.add(col)
+                keyframes.append(
+                    f"@keyframes g{col}{{0%{{opacity:1}}{gp:.1f}%{{opacity:1}}"
+                    f"{gp + 4:.1f}%{{opacity:0}}90%{{opacity:0}}100%{{opacity:1}}}}"
+                )
+                keyframes.append(
+                    f"@keyframes s{col}{{0%{{opacity:0;transform:scale(.3)}}"
+                    f"{gp:.1f}%{{opacity:0;transform:scale(.3)}}"
+                    f"{gp + 3:.1f}%{{opacity:1;transform:scale(1.18)}}"
+                    f"{gp + 6:.1f}%{{opacity:1;transform:scale(1)}}"
+                    f"88%{{opacity:1;transform:scale(1)}}95%{{opacity:0;transform:scale(.5)}}"
+                    f"100%{{opacity:0;transform:scale(.3)}}}}"
+                )
+            ccx = cx + CM_CELL / 2
+            ccy = cy + CM_CELL / 2
+            cells.append(
+                f'<g transform="translate({ccx:.1f},{ccy:.1f})">'
+                f'<rect class="grn" style="animation-name:g{col}" x="{-CM_CELL / 2}" '
+                f'y="{-CM_CELL / 2}" width="{CM_CELL}" height="{CM_CELL}" rx="3.5" '
+                f'fill="{CM_GREENS[level]}"/>'
+                f'<g class="cw" style="animation-name:s{col}">'
+                f'<path class="sp" d="{comet_star_path(CM_LEVEL_RADIUS[level])}" '
+                f'fill="{cell_color(col, row)}"/></g>'
+                f"</g>"
+            )
+
+    drive = (
+        "@keyframes drive{0%{transform:translateX(-140px)}"
+        f"{CM_CROSS_END * 100:.0f}%{{transform:translateX({CM_WIDTH + 140}px)}}"
+        f"100%{{transform:translateX({CM_WIDTH + 140}px)}}}}"
     )
-    spin = (
-        "@keyframes spin{0%{transform:rotate(0deg) scale(.82)}"
-        "50%{transform:rotate(180deg) scale(1.12)}"
-        "100%{transform:rotate(360deg) scale(.82)}}"
+    spin = "@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}"
+    cpulse = (
+        "@keyframes cpulse{0%,100%{transform:rotate(0) scale(.9)}"
+        "50%{transform:rotate(180deg) scale(1.1)}}"
     )
     style = (
         "<style>"
-        ".s{transform-box:fill-box;transform-origin:center}"
-        f".e{{animation:hue {STAR_HUE_S}s linear infinite}}"
-        f".f{{animation:hue {STAR_HUE_S}s linear infinite,spin {STAR_SPIN_S}s ease-in-out infinite}}"
-        + hue
+        f".grn{{animation-duration:{CM_PERIOD_S}s;animation-iteration-count:infinite;"
+        "animation-timing-function:ease}"
+        f".cw{{transform-box:fill-box;transform-origin:center;animation-duration:{CM_PERIOD_S}s;"
+        "animation-iteration-count:infinite;animation-timing-function:ease-out}"
+        f".sp{{transform-box:fill-box;transform-origin:center;animation:spin {CM_SPIN_S}s linear infinite}}"
+        f".comet{{animation:drive {CM_PERIOD_S}s linear infinite}}"
+        ".cstar{transform-box:fill-box;transform-origin:center;animation:cpulse 2.4s ease-in-out infinite}"
+        + "".join(keyframes)
+        + drive
         + spin
+        + cpulse
         + "</style>"
     )
+    defs = (
+        "<defs>"
+        '<radialGradient id="cglow"><stop offset="0" stop-color="#bcd2ff" stop-opacity="0.42"/>'
+        '<stop offset="1" stop-color="#bcd2ff" stop-opacity="0"/></radialGradient>'
+        '<linearGradient id="trail" x1="0" y1="0" x2="1" y2="0">'
+        '<stop offset="0" stop-color="#9ec1ff" stop-opacity="0"/>'
+        '<stop offset="1" stop-color="#cfe0ff" stop-opacity="0.5"/></linearGradient>'
+        + style
+        + "</defs>"
+    )
+    comet = (
+        f'<g class="comet"><g transform="translate(0,{mid_y:.0f})">'
+        f'<rect x="-150" y="-3" width="150" height="6" rx="3" fill="url(#trail)"/>'
+        f'<circle r="36" fill="url(#cglow)"/>'
+        f'<path class="cstar" d="{comet_star_path(16)}" fill="#eaf1ff"/>'
+        f'<path class="cstar" d="{comet_star_path(8)}" fill="#ffffff"/>'
+        f"</g></g>"
+    )
     return (
-        f'<svg xmlns="http://www.w3.org/2000/svg" width="{STAR_WIDTH}" height="{STAR_HEIGHT}" '
-        f'viewBox="0 0 {STAR_WIDTH} {STAR_HEIGHT}" role="img" '
-        f'aria-label="My contribution graph as a field of Gemini stars, the active days rotating and twinkling">'
-        f"<defs>{style}</defs>"
-        f'<rect width="{STAR_WIDTH}" height="{STAR_HEIGHT}" fill="{BG}"/>'
-        f'{"".join(stars)}'
+        f'<svg xmlns="http://www.w3.org/2000/svg" width="{CM_WIDTH}" height="{CM_HEIGHT}" '
+        f'viewBox="0 0 {CM_WIDTH} {CM_HEIGHT}" role="img" '
+        f'aria-label="A Gemini comet glides across my contribution graph, turning the green days into sparkles">'
+        f"{defs}"
+        f'<rect width="{CM_WIDTH}" height="{CM_HEIGHT}" fill="{BG}"/>'
+        f'<g>{"".join(empties)}</g>'
+        f'<g>{"".join(cells)}</g>'
+        f"{comet}"
         f"</svg>"
     )
 
@@ -884,7 +970,7 @@ def render_panels(
         (out_dir / "building.svg", build_building_svg(font_data)),
         (out_dir / "stats.svg", build_stats_svg(profile_data, font_data)),
         (out_dir / "languages.svg", build_languages_svg(profile_data, font_data)),
-        (out_dir / "graph.svg", build_stars_svg(profile_data.calendar_weeks)),
+        (out_dir / "graph.svg", build_comet_svg(profile_data.calendar_weeks)),
     ]
 
     written_paths: List[Path] = []
