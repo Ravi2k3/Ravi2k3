@@ -1006,6 +1006,248 @@ def build_ship_svg(
     )
 
 
+# Mobile variants: narrower (480px) canvases with stacked, larger-text layouts so
+# the panels stay readable when a phone scales them down. Served via <picture> with
+# a max-width media query. The graph panel is decorative and reuses the desktop SVG.
+MOBILE_WIDTH: int = 480
+
+
+def build_banner_mobile_svg(
+    font_data: str,
+) -> str:
+    parts = [
+        svg_open(
+            width=MOBILE_WIDTH,
+            height=292,
+            aria_label="Ravi Krishna, Product Manager. I design the boundaries between products.",
+            font_data=font_data,
+        ),
+        f'  <rect width="{MOBILE_WIDTH}" height="292" fill="{BG}"/>',
+        svg_text(
+            x=30,
+            y=48,
+            font_size=13,
+            fill=MUTE,
+            font_weight=600,
+            content="PRODUCT MANAGER · COLLIGENCE",
+            letter_spacing=2.5,
+        ),
+        f'  <text x="28" y="116" font-size="40" font-weight="700" letter-spacing="-1" fill="{INK}">I design the</text>',
+        f'  <text x="28" y="164" font-size="40" font-weight="700" letter-spacing="-1" fill="{ORANGE}">boundaries</text>',
+        f'  <text x="28" y="212" font-size="40" font-weight="700" letter-spacing="-1" fill="{INK}">between products.</text>',
+        svg_text(
+            x=30,
+            y=254,
+            font_size=14,
+            fill=MUTE,
+            font_weight=450,
+            content="the protocols, permissions, and identity layers",
+        ),
+        svg_text(
+            x=30,
+            y=276,
+            font_size=14,
+            fill=MUTE,
+            font_weight=450,
+            content="that let separate apps work together",
+        ),
+        "</svg>",
+    ]
+    return "\n".join(parts)
+
+
+def build_stats_mobile_svg(
+    profile_data: ProfileData,
+    font_data: str,
+) -> str:
+    stats = [
+        (f"{profile_data.contributions:,}", "contributions, last year"),
+        (INSTALLS, "moonlight-ai installs"),
+        (YEARS, "years shipping, since 2021"),
+    ]
+    parts = [
+        svg_open(
+            width=MOBILE_WIDTH,
+            height=330,
+            aria_label=(
+                f"By the numbers: {profile_data.contributions:,} contributions last year, "
+                f"{INSTALLS} moonlight-ai installs, {YEARS} years shipping"
+            ),
+            font_data=font_data,
+        ),
+        f'  <rect width="{MOBILE_WIDTH}" height="330" fill="{BG}"/>',
+        svg_text(
+            x=30,
+            y=48,
+            font_size=13,
+            fill=MUTE,
+            font_weight=600,
+            content="BY THE NUMBERS",
+            letter_spacing=2.5,
+        ),
+    ]
+    y = 118
+    for number, label in stats:
+        parts.append(
+            svg_text(
+                x=30,
+                y=y,
+                font_size=42,
+                fill=ORANGE,
+                font_weight=700,
+                content=number,
+                letter_spacing=-1,
+            )
+        )
+        parts.append(
+            svg_text(
+                x=32,
+                y=y + 26,
+                font_size=14,
+                fill=MUTE,
+                font_weight=450,
+                content=label,
+            )
+        )
+        y += 86
+    parts.append("</svg>")
+    return "\n".join(parts)
+
+
+def build_languages_mobile_svg(
+    profile_data: ProfileData,
+    font_data: str,
+) -> str:
+    languages = profile_data.languages
+    bar_x = 30.0
+    bar_y = 72.0
+    bar_w = float(MOBILE_WIDTH - 60)
+    bar_h = 16.0
+    gap = 2.0 if len(languages) > 1 else 0.0
+    color_w = bar_w - gap * (len(languages) - 1)
+    total = sum(language.size for language in languages) or 1
+    parts = [
+        svg_open(
+            width=MOBILE_WIDTH,
+            height=212,
+            aria_label="Languages: " + ", ".join(
+                f"{language.name} {format_percent(language.percent)}" for language in languages
+            ),
+            font_data=font_data,
+        ),
+        f'  <rect width="{MOBILE_WIDTH}" height="212" fill="{BG}"/>',
+        svg_text(
+            x=30,
+            y=48,
+            font_size=13,
+            fill=MUTE,
+            font_weight=600,
+            content="LANGUAGES",
+            letter_spacing=2.5,
+        ),
+        f'  <clipPath id="mlang"><rect x="{bar_x}" y="{bar_y}" width="{bar_w}" height="{bar_h}" '
+        f'rx="{bar_h / 2}"/></clipPath>',
+        f'  <g clip-path="url(#mlang)">',
+    ]
+    consumed = 0.0
+    for index, language in enumerate(languages):
+        seg = color_w - consumed if index == len(languages) - 1 else color_w * (language.size / total)
+        seg_x = bar_x + consumed + gap * index
+        parts.append(
+            f'    <rect x="{format_svg_number(seg_x)}" y="{format_svg_number(bar_y)}" '
+            f'width="{format_svg_number(seg)}" height="{format_svg_number(bar_h)}" '
+            f'fill="{escape_attr(language.color)}"/>'
+        )
+        consumed += seg
+    parts.append("  </g>")
+    for index, language in enumerate(languages[:6]):
+        col = 0 if index < 3 else 1
+        row = index % 3
+        lx = 30.0 + col * 224
+        ly = 120.0 + row * 30
+        parts.append(
+            f'  <circle cx="{format_svg_number(lx + 5)}" cy="{format_svg_number(ly - 4)}" r="5" '
+            f'fill="{escape_attr(language.color)}"/>'
+        )
+        parts.append(
+            f'  <text x="{format_svg_number(lx + 18)}" y="{format_svg_number(ly)}" font-size="14" '
+            f'font-weight="450" fill="{INK}">{escape_text(language.name)} '
+            f'<tspan fill="{MUTE}">{escape_text(format_percent(language.percent))}</tspan></text>'
+        )
+    parts.append("</svg>")
+    return "\n".join(parts)
+
+
+def build_building_mobile_svg(
+    font_data: str,
+) -> str:
+    rows = [
+        (
+            "Aikyat Mail",
+            "40+ providers · 92.7% recall@10",
+            [
+                "AI email client across Gmail, Outlook, and 40+",
+                "providers, built solo. FastAPI · pgvector · Flutter.",
+            ],
+        ),
+        (
+            "The reference-card protocol",
+            "the banner above",
+            [
+                "I designed the spec: a cited reference opens in",
+                "the reader's permissions, never the sender's.",
+            ],
+        ),
+        (
+            "Throughline",
+            "0 ACL leaks @ 100k · 0.987 recall",
+            [
+                "Permission-safe semantic search. The nearest",
+                "neighbor is denied if it isn't yours.",
+            ],
+        ),
+    ]
+    parts = [
+        svg_open(
+            width=MOBILE_WIDTH,
+            height=392,
+            aria_label=(
+                "Currently building: Aikyat Mail, the reference-card protocol, Throughline"
+            ),
+            font_data=font_data,
+        ),
+        f'  <rect width="{MOBILE_WIDTH}" height="392" fill="{BG}"/>',
+        svg_text(
+            x=30,
+            y=46,
+            font_size=13,
+            fill=MUTE,
+            font_weight=600,
+            content="CURRENTLY BUILDING",
+            letter_spacing=2.5,
+        ),
+    ]
+    y = 92
+    for index, (name, metric, desc_lines) in enumerate(rows):
+        parts.append(
+            svg_text(x=30, y=y, font_size=19, fill=INK, font_weight=700, content=name, letter_spacing=-0.3)
+        )
+        parts.append(
+            svg_text(x=30, y=y + 22, font_size=12.5, fill=ORANGE, font_weight=500, content=metric)
+        )
+        parts.append(
+            svg_text(x=30, y=y + 44, font_size=13, fill=MUTE, font_weight=450, content=desc_lines[0])
+        )
+        parts.append(
+            svg_text(x=30, y=y + 62, font_size=13, fill=MUTE, font_weight=450, content=desc_lines[1])
+        )
+        if index < len(rows) - 1:
+            parts.append(f'  <rect x="30" y="{y + 82}" width="{MOBILE_WIDTH - 60}" height="1" fill="{HAIR}"/>')
+        y += 100
+    parts.append("</svg>")
+    return "\n".join(parts)
+
+
 def write_svg(
     output_path: Path,
     svg: str,
@@ -1026,6 +1268,10 @@ def render_panels(
         (out_dir / "stats.svg", build_stats_svg(profile_data, font_data)),
         (out_dir / "languages.svg", build_languages_svg(profile_data, font_data)),
         (out_dir / "graph.svg", build_ship_svg(profile_data.calendar_weeks)),
+        (out_dir / "banner-mobile.svg", build_banner_mobile_svg(font_data)),
+        (out_dir / "stats-mobile.svg", build_stats_mobile_svg(profile_data, font_data)),
+        (out_dir / "languages-mobile.svg", build_languages_mobile_svg(profile_data, font_data)),
+        (out_dir / "building-mobile.svg", build_building_mobile_svg(font_data)),
     ]
 
     written_paths: List[Path] = []
