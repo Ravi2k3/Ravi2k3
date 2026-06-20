@@ -1,28 +1,52 @@
-name: profile stats
+name: profile graphs
+
 on:
   schedule:
     - cron: "0 6 * * *"
   workflow_dispatch:
+  push:
+    branches:
+      - main
+
 permissions:
   contents: write
+
 jobs:
-  refresh:
+  build:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
-      - name: generate panels
+          python-version: "3.12"
+
+      - name: Generate panels
+        id: gen
+        continue-on-error: true
         env:
           GH_TOKEN: ${{ secrets.STATS_TOKEN }}
-        run: python3 .github/scripts/generate.py --require-live
-      - name: commit refreshed svgs
+        run: python3 .github/scripts/generate.py --require-live --out dist
+
+      - name: Fall back to last good panels if generation failed
+        if: steps.gen.outcome != 'success'
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add assets/*.svg
-          if ! git diff --staged --quiet; then
-            git commit -m "chore: refresh profile stats and language split"
-            git push
-          fi
+          mkdir -p dist
+          git fetch origin output || true
+          for f in banner building stats languages graph; do
+            if [ ! -s "dist/${f}.svg" ]; then
+              git show "origin/output:${f}.svg" > "dist/${f}.svg" 2>/dev/null || rm -f "dist/${f}.svg"
+            fi
+          done
+
+      - name: Deploy to output branch
+        uses: crazy-max/ghaction-github-pages@v4
+        with:
+          target_branch: output
+          build_dir: dist
+          commit_message: "chore: refresh profile graphs"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
