@@ -767,24 +767,24 @@ def build_languages_svg(
     return "\n".join(parts)
 
 
-# Aurora contribution panel. GitHub renders SVGs as <img>, so the motion is pure
-# CSS. The cells are an SVG mask (crisp edges, brightness by real activity) and a
-# Gemini-style gradient (blue, violet, magenta, rose) flows across them, so the
-# whole graph shimmers with the real days glowing brightest.
-AUR_WIDTH: int = 1200
-AUR_HEIGHT: int = 200
-AUR_CELL: int = 15
-AUR_GAP: int = 4
-AUR_PITCH: int = AUR_CELL + AUR_GAP
-AUR_ORIGIN_X: int = 98
-AUR_ORIGIN_Y: int = 36
-AUR_ROWS: int = 7
-AUR_PERIOD_S: float = 16.0
-AUR_LEVEL_ALPHA: Dict[int, float] = {-1: 0.16, 0: 0.55, 1: 0.72, 2: 0.88, 3: 1.0}
-AUR_CYCLE: List[str] = ["#4285F4", "#7C6CF0", "#C56BB0", "#E8769A"]
+# Gemini-sparkle contribution panel. GitHub renders SVGs as <img>, so the motion
+# is pure CSS. Every day is a four-point Gemini star sized by real activity; all
+# stars cycle through the aurora palette (color flows across the field via a
+# per-column delay) and the real contribution days slowly rotate and twinkle.
+STAR_PALETTE: List[str] = ["#4285F4", "#7C6CF0", "#C56BB0", "#E8769A"]
+STAR_WIDTH: int = 1200
+STAR_HEIGHT: int = 250
+STAR_PITCH: int = 21
+STAR_ORIGIN_X: int = 44
+STAR_ORIGIN_Y: int = 50
+STAR_ROWS: int = 7
+STAR_HUE_S: float = 16.0
+STAR_SPIN_S: float = 12.0
+STAR_RADIUS: Dict[int, float] = {-1: 3.6, 0: 7.0, 1: 8.5, 2: 10.0, 3: 11.5}
+STAR_OPACITY: Dict[int, float] = {-1: 0.5, 0: 0.85, 1: 0.92, 2: 1.0, 3: 1.0}
 
 
-def aurora_level(
+def star_level(
     count: int,
 ) -> int:
     if count <= 0:
@@ -798,53 +798,69 @@ def aurora_level(
     return 3
 
 
-def build_aurora_svg(
+def star_path(
+    radius: float,
+) -> str:
+    r = round(radius, 1)
+    c = round(radius * 0.14, 1)
+    return f"M0,{-r}Q{c},{-c} {r},0Q{c},{c} 0,{r}Q{-c},{c} {-r},0Q{-c},{-c} 0,{-r}Z"
+
+
+def build_stars_svg(
     weeks: List[List[int]],
 ) -> str:
     cols = len(weeks)
-    grid_w = cols * AUR_PITCH - AUR_GAP
-    grid_h = AUR_ROWS * AUR_PITCH - AUR_GAP
-
-    mask_cells: List[str] = []
+    stars: List[str] = []
     for col, week in enumerate(weeks):
-        cx = AUR_ORIGIN_X + col * AUR_PITCH
+        cx = STAR_ORIGIN_X + col * STAR_PITCH
+        hue_delay = -(col / cols) * STAR_HUE_S
         for row, count in enumerate(week):
-            cy = AUR_ORIGIN_Y + row * AUR_PITCH
-            alpha = AUR_LEVEL_ALPHA[aurora_level(count)]
-            mask_cells.append(
-                f'<rect x="{cx}" y="{cy}" width="{AUR_CELL}" height="{AUR_CELL}" rx="3.5" '
-                f'fill="#fff" fill-opacity="{alpha}"/>'
-            )
+            cy = STAR_ORIGIN_Y + row * STAR_PITCH
+            level = star_level(count)
+            path = star_path(STAR_RADIUS[level])
+            opacity = STAR_OPACITY[level]
+            if level < 0:
+                stars.append(
+                    f'<g transform="translate({cx},{cy})">'
+                    f'<path class="s e" style="animation-delay:{hue_delay:.2f}s" '
+                    f'opacity="{opacity}" d="{path}"/></g>'
+                )
+            else:
+                spin_delay = -((col * 1.3 + row * 2.1) % STAR_SPIN_S)
+                stars.append(
+                    f'<g transform="translate({cx},{cy})">'
+                    f'<path class="s f" '
+                    f'style="animation-delay:{hue_delay:.2f}s,{spin_delay:.2f}s" '
+                    f'opacity="{opacity}" d="{path}"/></g>'
+                )
 
-    palette = AUR_CYCLE + AUR_CYCLE + [AUR_CYCLE[0]]
-    stops = "".join(
-        f'<stop offset="{index / (len(palette) - 1):.4f}" stop-color="{color}"/>'
-        for index, color in enumerate(palette)
+    hue = (
+        "@keyframes hue{"
+        f"0%{{fill:{STAR_PALETTE[0]}}}25%{{fill:{STAR_PALETTE[1]}}}"
+        f"50%{{fill:{STAR_PALETTE[2]}}}75%{{fill:{STAR_PALETTE[3]}}}"
+        f"100%{{fill:{STAR_PALETTE[0]}}}}}"
     )
-    flow_grad = (
-        '<linearGradient id="flow" x1="0" y1="0" x2="1" y2="0.18">'
-        + stops
-        + "</linearGradient>"
+    spin = (
+        "@keyframes spin{0%{transform:rotate(0deg) scale(.82)}"
+        "50%{transform:rotate(180deg) scale(1.12)}"
+        "100%{transform:rotate(360deg) scale(.82)}}"
     )
-    mask = f'<mask id="grid">{"".join(mask_cells)}</mask>'
     style = (
         "<style>"
-        f".flow{{animation:flow {AUR_PERIOD_S}s linear infinite}}"
-        f"@keyframes flow{{0%{{transform:translateX(0)}}"
-        f"100%{{transform:translateX({grid_w}px)}}}}"
-        "</style>"
-    )
-    flow_rect = (
-        f'<rect class="flow" x="{AUR_ORIGIN_X - grid_w}" y="{AUR_ORIGIN_Y}" '
-        f'width="{2 * grid_w}" height="{grid_h}" fill="url(#flow)"/>'
+        ".s{transform-box:fill-box;transform-origin:center}"
+        f".e{{animation:hue {STAR_HUE_S}s linear infinite}}"
+        f".f{{animation:hue {STAR_HUE_S}s linear infinite,spin {STAR_SPIN_S}s ease-in-out infinite}}"
+        + hue
+        + spin
+        + "</style>"
     )
     return (
-        f'<svg xmlns="http://www.w3.org/2000/svg" width="{AUR_WIDTH}" height="{AUR_HEIGHT}" '
-        f'viewBox="0 0 {AUR_WIDTH} {AUR_HEIGHT}" role="img" '
-        f'aria-label="My contribution graph with a Gemini-style gradient flowing across it">'
-        f"<defs>{flow_grad}{mask}{style}</defs>"
-        f'<rect width="{AUR_WIDTH}" height="{AUR_HEIGHT}" fill="{BG}"/>'
-        f'<g mask="url(#grid)">{flow_rect}</g>'
+        f'<svg xmlns="http://www.w3.org/2000/svg" width="{STAR_WIDTH}" height="{STAR_HEIGHT}" '
+        f'viewBox="0 0 {STAR_WIDTH} {STAR_HEIGHT}" role="img" '
+        f'aria-label="My contribution graph as a field of Gemini stars, the active days rotating and twinkling">'
+        f"<defs>{style}</defs>"
+        f'<rect width="{STAR_WIDTH}" height="{STAR_HEIGHT}" fill="{BG}"/>'
+        f'{"".join(stars)}'
         f"</svg>"
     )
 
@@ -868,7 +884,7 @@ def render_panels(
         (out_dir / "building.svg", build_building_svg(font_data)),
         (out_dir / "stats.svg", build_stats_svg(profile_data, font_data)),
         (out_dir / "languages.svg", build_languages_svg(profile_data, font_data)),
-        (out_dir / "graph.svg", build_aurora_svg(profile_data.calendar_weeks)),
+        (out_dir / "graph.svg", build_stars_svg(profile_data.calendar_weeks)),
     ]
 
     written_paths: List[Path] = []
