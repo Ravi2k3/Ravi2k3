@@ -26,7 +26,7 @@ LANGUAGES_QUERY: str = (
 )
 ACTIVITY_QUERY: str = (
     "query($login:String!){ user(login:$login){ contributionsCollection{ "
-    "restrictedContributionsCount contributionCalendar{ totalContributions "
+    "contributionCalendar{ totalContributions "
     "weeks{ contributionDays{ contributionCount } } } } } }"
 )
 
@@ -80,7 +80,6 @@ class LanguageStat:
 @dataclass(frozen=True)
 class Activity:
     total: int
-    private: int
     weeks: List[List[int]]
 
 
@@ -268,16 +267,11 @@ def summarize_languages(
 def fetch_activity(
     token: str,
 ) -> Activity:
-    collection = graphql_user(token, ACTIVITY_QUERY)["contributionsCollection"]
-    calendar = collection["contributionCalendar"]
+    calendar = graphql_user(token, ACTIVITY_QUERY)["contributionsCollection"]["contributionCalendar"]
     weeks = [[day["contributionCount"] for day in week["contributionDays"]] for week in calendar["weeks"]]
     if not any(any(week) for week in weeks):
         raise RuntimeError("GitHub returned an empty contribution calendar.")
-    return Activity(
-        total=calendar["totalContributions"],
-        private=collection["restrictedContributionsCount"],
-        weeks=weeks,
-    )
+    return Activity(total=calendar["totalContributions"], weeks=weeks)
 
 
 def svg_document(
@@ -395,7 +389,8 @@ def run_graph(
 def activity_caption(
     activity: Activity,
 ) -> str:
-    return f"My last year on GitHub. {activity.private:,} of these {activity.total:,} contributions are in private repos."
+    # GitHub's private-contribution count depends on the token asking (the CI token gets 0), so no number here.
+    return f"My last year on GitHub. Most of these {activity.total:,} contributions are in private repos."
 
 
 def build_hero_desktop(
