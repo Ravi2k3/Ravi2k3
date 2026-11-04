@@ -30,6 +30,9 @@ HAIR: str = "#30363d"
 INSTALLS: str = "7.7k"
 YEARS: str = "4+"
 
+# Left out of the language panel by choice, so percentages cover what remains.
+HIDDEN_LANGUAGES: Tuple[str, ...] = ("Dart",)
+
 CONTRIBUTIONS_QUERY: str = (
     "query($login:String!){ user(login:$login){ contributionsCollection{ "
     "contributionCalendar{ totalContributions weeks{ contributionDays{ "
@@ -258,7 +261,7 @@ def normalize_language_stats(
     colors_by_name: Dict[str, str],
 ) -> List[LanguageStat]:
     ordered = sorted(
-        sizes_by_name.items(),
+        (item for item in sizes_by_name.items() if item[0] not in HIDDEN_LANGUAGES),
         key=lambda item: item[1],
         reverse=True,
     )[:6]

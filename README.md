@@ -63,7 +63,7 @@
 <p align="center">
   <picture>
     <source media="(max-width: 600px)" srcset="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/output/languages-mobile.svg" />
-    <img src="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/output/languages.svg" alt="Language split across owner repositories, private repos included" width="100%" />
+    <img src="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/output/languages.svg" alt="Language split across owner repositories, private repos included, Dart excluded" width="100%" />
   </picture>
 </p>
 
