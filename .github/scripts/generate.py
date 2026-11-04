@@ -4,122 +4,217 @@
 from __future__ import annotations
 
 import argparse
-import base64
-import binascii
+import dataclasses
 import html
 import json
+import math
 import os
 import sys
+import textwrap
 import urllib.error
 import urllib.request
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
-
+from typing import Any, Dict, List, Tuple
 
 GRAPHQL_ENDPOINT: str = "https://api.github.com/graphql"
 LOGIN: str = "Ravi2k3"
-
-INK: str = "#c9d1d9"
-ORANGE: str = "#D97757"
-MUTE: str = "#6e7681"
-BG: str = "#0d1117"
-HAIR: str = "#30363d"
-
-# Curated values, manually updated because they are not reliably fetchable.
-INSTALLS: str = "7.7k"
-YEARS: str = "4+"
+LANGUAGES_QUERY: str = (
+    "query($login:String!){ user(login:$login){ repositories(first:100, "
+    "ownerAffiliations:OWNER, isFork:false){ nodes{ languages(first:10, "
+    "orderBy:{field:SIZE, direction:DESC}){ edges{ size node{ name } } } } } } }"
+)
+ACTIVITY_QUERY: str = (
+    "query($login:String!){ user(login:$login){ contributionsCollection{ "
+    "restrictedContributionsCount contributionCalendar{ totalContributions "
+    "weeks{ contributionDays{ contributionCount } } } } } }"
+)
 
 # Left out of the language panel by choice, so percentages cover what remains.
 HIDDEN_LANGUAGES: Tuple[str, ...] = ("Dart",)
+MAX_LANGUAGES: int = 6
 
-CONTRIBUTIONS_QUERY: str = (
-    "query($login:String!){ user(login:$login){ contributionsCollection{ "
-    "contributionCalendar{ totalContributions weeks{ contributionDays{ "
-    "contributionCount } } } } } }"
-)
-LANGUAGES_QUERY: str = (
-    "query($login:String!){ user(login:$login){ repositories(first:100, "
-    "ownerAffiliations:OWNER, isFork:false){ nodes{ languages(first:10){ "
-    "edges{ size node{ name color } } } } } } }"
+DESKTOP_WIDTH: int = 1200
+MOBILE_WIDTH: int = 720
+DESKTOP_ROW_TEXT_X: int = 290
+DESKTOP_ROW_CHARS: int = 70
+MOBILE_ROW_CHARS: int = 46
+MOBILE_GRAPH_WEEKS: int = 27
+
+RUN_START_SECONDS: float = 0.8
+RUN_SECONDS: float = 4.2
+INTENSITY_THRESHOLDS: Tuple[int, ...] = (5, 15, 30)
+
+HEADLINE: str = "I'm Ravi. I'm a PM who builds AI agents."
+INTRO: str = (
+    "I work at Colligence on Aikyat, an AI email and chat suite. "
+    "I wrote most of the Mail backend and client before I moved into product."
 )
 
-JsonObject = Dict[str, Any]
+
+@dataclass(frozen=True)
+class Theme:
+    name: str
+    ink: str
+    mute: str
+    accent: str
+    empty: str
+    heat: Tuple[str, ...]
+    language_colors: Tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class Project:
+    slug: str
+    name: str
+    text: str
+    public: bool = False
 
 
 @dataclass(frozen=True)
 class LanguageStat:
     name: str
-    color: str
-    size: int
     percent: float
 
 
 @dataclass(frozen=True)
-class ProfileData:
-    contributions: int
-    languages: List[LanguageStat]
-    calendar_weeks: List[List[int]]
+class Activity:
+    total: int
+    private: int
+    weeks: List[List[int]]
+
+
+THEMES: Tuple[Theme, ...] = (
+    Theme(
+        name="dark",
+        ink="#e6edf3",
+        mute="#9198a1",
+        accent="#ff5a1f",
+        empty="#161b22",
+        heat=("#5a1f0a", "#a3330c", "#e5470f", "#ff5a1f"),
+        language_colors=("#ff5a1f", "#ff8a4c", "#ffb38a", "#ffe3d6", "#8f2f0c", "#d9420f"),
+    ),
+    Theme(
+        name="light",
+        ink="#1f2328",
+        mute="#59636e",
+        accent="#d63900",
+        empty="#f0f2f4",
+        heat=("#ffd4c2", "#ff9a6b", "#f2601f", "#d63900"),
+        language_colors=("#d63900", "#f2601f", "#ff9a6b", "#a32b00", "#ffc4a8", "#6e1e00"),
+    ),
+)
+
+NOW_PROJECTS: Tuple[Project, ...] = (
+    Project(
+        slug="aikyat-mail",
+        name="Aikyat Mail",
+        text=(
+            "Search your inbox in plain English across Gmail, Outlook, Yahoo and any IMAP "
+            "account. The first version used one retriever and kept missing emails people "
+            "expected to find, so we replaced it."
+        ),
+    ),
+    Project(
+        slug="aikyat-chat",
+        name="Aikyat Chat",
+        text=(
+            "Pre-release. We nearly folded it into Mail. I argued to keep it separate, with a "
+            "widget inside Mail, because the AI agent that works across our products has to "
+            "live somewhere."
+        ),
+    ),
+    Project(
+        slug="reference-cards",
+        name="Reference cards",
+        text=(
+            "Cite an email in chat and the other person gets a live card, which opens with "
+            "their own permissions. Every new Aikyat product has to integrate this way."
+        ),
+    ),
+)
+
+BEFORE_PROJECTS: Tuple[Project, ...] = (
+    Project(
+        slug="moonlight",
+        name="MoonLight",
+        text=(
+            "Agent SDK from Automa, the startup I co-founded with Gautam. I led the product "
+            "and the agent loop, where the agent writes its own next action. Gautam published "
+            "it. It's sunset now because the big providers' own SDKs do more."
+        ),
+        public=True,
+    ),
+    Project(
+        slug="lv-outreach",
+        name="LV Outreach",
+        text=(
+            "Cold email tool that writes each email from the lead and your product docs. A "
+            "second model call rejects drafts with AI tells, like em dashes and filler "
+            "adjectives, and makes it try again."
+        ),
+        public=True,
+    ),
+    Project(
+        slug="facespace",
+        name="FaceSpace",
+        text=(
+            "200+ video streams on one GPU, using multiprocessing to get around NVIDIA's "
+            "single-process limit. My GPU funding request got rejected, so I found an RTX 3090 "
+            "on campus and won the admins over with a demo."
+        ),
+    ),
+    Project(
+        slug="berghain",
+        name="Berghain Challenge",
+        text=(
+            "70th of 1,330 on the Listen Labs leaderboard. Linear programming to predict "
+            "rejections, plus heuristics recalculated every 50 admits."
+        ),
+    ),
+)
+
+# Every moving part uses CSS animation so they share one clock, including when a tab loads in the background.
+HERO_MOTION_CSS: str = (
+    ".lit{animation:ignite .22s linear both;}"
+    "@keyframes ignite{from{fill:var(--e);}}"
+    f".trace{{animation:walk {RUN_SECONDS}s linear both,settle .8s linear forwards;}}"
+    "@keyframes walk{from{stroke-dashoffset:1;}to{stroke-dashoffset:0;}}"
+    "@keyframes settle{to{opacity:.16;}}"
+    f".head{{opacity:0;offset-rotate:0deg;animation:run {RUN_SECONDS}s linear both,show .01s linear forwards;}}"
+    "@keyframes run{from{offset-distance:0%;}to{offset-distance:100%;}}"
+    "@keyframes show{to{opacity:1;}}"
+    ".alive{opacity:0;transform-box:fill-box;transform-origin:center;animation:ping 1.8s ease-out infinite;}"
+    "@keyframes ping{from{opacity:.9;transform:scale(1);}to{opacity:0;transform:scale(3);}}"
+    "@media (prefers-reduced-motion:reduce){.lit{animation:none;}.trace{animation:none;opacity:.16;}.head,.alive{display:none;}}"
+)
 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Generate profile SVG panels.")
     parser.add_argument(
-        "--sample",
-        action="store_true",
-        help="Use sample layout data without network access.",
-    )
-    parser.add_argument(
-        "--require-live",
-        action="store_true",
-        help="Fail instead of falling back to sample data when no token is set (use in CI).",
-    )
-    parser.add_argument(
         "--out",
         type=Path,
-        default=None,
+        required=True,
         help="Output directory for SVG panels.",
     )
     return parser.parse_args()
 
 
-def resolve_paths(
-    output_directory: Optional[Path],
-) -> Tuple[Path, Path]:
-    script_dir = Path(__file__).resolve().parent
-    repo_root = script_dir.parents[1]
-    out_dir = output_directory.resolve() if output_directory else repo_root / "assets"
-    font_path = script_dir / "lexvf.b64"
-    return out_dir, font_path
-
-
 def read_font_data(
     font_path: Path,
 ) -> str:
-    if not font_path.exists():
-        raise FileNotFoundError(f"Font base64 file is missing: {font_path}")
-
     font_data = "".join(font_path.read_text(encoding="utf-8").split())
     if not font_data:
         raise ValueError(f"Font base64 file is empty: {font_path}")
-
-    try:
-        base64.b64decode(font_data, validate=True)
-    except binascii.Error as error:
-        raise ValueError(f"Font base64 file is invalid: {font_path}") from error
-
     return font_data
 
 
-def graphql_request(
+def graphql_user(
     token: str,
     query: str,
-    variables: JsonObject,
-) -> JsonObject:
-    payload = json.dumps(
-        {"query": query, "variables": variables},
-        separators=(",", ":"),
-    ).encode("utf-8")
+) -> Dict[str, Any]:
+    payload = json.dumps({"query": query, "variables": {"login": LOGIN}}).encode("utf-8")
     request = urllib.request.Request(
         GRAPHQL_ENDPOINT,
         data=payload,
@@ -130,1188 +225,362 @@ def graphql_request(
             "User-Agent": "profile-generator",
         },
     )
-
     try:
         with urllib.request.urlopen(request, timeout=30) as response:
-            status = response.getcode()
-            body = response.read().decode("utf-8")
+            decoded = json.loads(response.read().decode("utf-8"))
     except urllib.error.HTTPError as error:
-        body = error.read().decode("utf-8", errors="replace")
-        raise RuntimeError(
-            f"GitHub GraphQL HTTP {error.code}: {body[:500]}"
-        ) from error
+        detail = error.read().decode("utf-8", errors="replace")[:500]
+        raise RuntimeError(f"GitHub GraphQL HTTP {error.code}: {detail}") from error
     except urllib.error.URLError as error:
         raise RuntimeError(f"GitHub GraphQL request failed: {error.reason}") from error
 
-    if status != 200:
-        raise RuntimeError(f"GitHub GraphQL HTTP {status}: {body[:500]}")
-
-    try:
-        decoded = json.loads(body)
-    except json.JSONDecodeError as error:
-        raise RuntimeError(f"GitHub GraphQL returned invalid JSON: {body[:500]}") from error
-
-    if not isinstance(decoded, dict):
-        raise RuntimeError("GitHub GraphQL returned a non-object JSON payload.")
-
-    errors = decoded.get("errors")
-    if errors:
-        raise RuntimeError(
-            f"GitHub GraphQL returned errors: {json.dumps(errors)[:500]}"
-        )
-
-    return decoded
-
-
-def require_object(
-    value: Any,
-    path: str,
-) -> JsonObject:
-    if not isinstance(value, dict):
-        raise RuntimeError(f"Invalid GitHub response: expected object at {path}.")
-    return value
-
-
-def require_list(
-    value: Any,
-    path: str,
-) -> List[Any]:
-    if not isinstance(value, list):
-        raise RuntimeError(f"Invalid GitHub response: expected list at {path}.")
-    return value
-
-
-def require_int(
-    value: Any,
-    path: str,
-) -> int:
-    if isinstance(value, bool) or not isinstance(value, int):
-        raise RuntimeError(f"Invalid GitHub response: expected integer at {path}.")
-    return value
-
-
-def require_str(
-    value: Any,
-    path: str,
-) -> str:
-    if not isinstance(value, str) or not value:
-        raise RuntimeError(f"Invalid GitHub response: expected string at {path}.")
-    return value
-
-
-def extract_user(
-    response: JsonObject,
-    context: str,
-) -> JsonObject:
-    data = require_object(response.get("data"), f"{context}.data")
-    user = data.get("user")
-    if user is None:
-        raise RuntimeError(f"Invalid GitHub response: data.user is missing for {context}.")
-    return require_object(user, f"{context}.data.user")
-
-
-def fetch_contributions_and_calendar(
-    token: str,
-) -> Tuple[int, List[List[int]]]:
-    response = graphql_request(
-        token=token,
-        query=CONTRIBUTIONS_QUERY,
-        variables={"login": LOGIN},
-    )
-    user = extract_user(response, "contributions")
-    collection = require_object(
-        user.get("contributionsCollection"),
-        "contributions.data.user.contributionsCollection",
-    )
-    calendar = require_object(
-        collection.get("contributionCalendar"),
-        "contributions.data.user.contributionsCollection.contributionCalendar",
-    )
-    total = require_int(
-        calendar.get("totalContributions"),
-        "contributions.data.user.contributionsCollection.contributionCalendar.totalContributions",
-    )
-    weeks_raw = require_list(
-        calendar.get("weeks"),
-        "contributions.data.user.contributionsCollection.contributionCalendar.weeks",
-    )
-    weeks: List[List[int]] = []
-    for week_index, week in enumerate(weeks_raw):
-        week_object = require_object(week, f"calendar.weeks[{week_index}]")
-        days = require_list(
-            week_object.get("contributionDays"),
-            f"calendar.weeks[{week_index}].contributionDays",
-        )
-        weeks.append(
-            [
-                require_int(
-                    require_object(day, f"calendar.weeks[{week_index}].days[{day_index}]").get(
-                        "contributionCount"
-                    ),
-                    f"calendar.weeks[{week_index}].days[{day_index}].contributionCount",
-                )
-                for day_index, day in enumerate(days)
-            ]
-        )
-    return total, weeks
-
-
-def normalize_language_stats(
-    sizes_by_name: Dict[str, int],
-    colors_by_name: Dict[str, str],
-) -> List[LanguageStat]:
-    ordered = sorted(
-        (item for item in sizes_by_name.items() if item[0] not in HIDDEN_LANGUAGES),
-        key=lambda item: item[1],
-        reverse=True,
-    )[:6]
-    total_size = sum(size for _, size in ordered)
-    if total_size <= 0:
-        raise RuntimeError("GitHub returned no language byte counts for owner repositories.")
-
-    return [
-        LanguageStat(
-            name=name,
-            color=colors_by_name.get(name, MUTE),
-            size=size,
-            percent=(size / total_size) * 100,
-        )
-        for name, size in ordered
-    ]
+    if decoded.get("errors"):
+        raise RuntimeError(f"GitHub GraphQL returned errors: {json.dumps(decoded['errors'])[:500]}")
+    return decoded["data"]["user"]
 
 
 def fetch_languages(
     token: str,
 ) -> List[LanguageStat]:
-    response = graphql_request(
-        token=token,
-        query=LANGUAGES_QUERY,
-        variables={"login": LOGIN},
-    )
-    user = extract_user(response, "languages")
-    repositories = require_object(
-        user.get("repositories"),
-        "languages.data.user.repositories",
-    )
-    nodes = require_list(
-        repositories.get("nodes"),
-        "languages.data.user.repositories.nodes",
-    )
-
+    repositories = graphql_user(token, LANGUAGES_QUERY)["repositories"]["nodes"]
     sizes_by_name: Dict[str, int] = {}
-    colors_by_name: Dict[str, str] = {}
-
-    for repository_index, repository in enumerate(nodes):
-        repository_object = require_object(
-            repository,
-            f"languages.data.user.repositories.nodes[{repository_index}]",
-        )
-        languages = require_object(
-            repository_object.get("languages"),
-            f"languages.data.user.repositories.nodes[{repository_index}].languages",
-        )
-        edges = require_list(
-            languages.get("edges"),
-            f"languages.data.user.repositories.nodes[{repository_index}].languages.edges",
-        )
-        for edge_index, edge in enumerate(edges):
-            edge_path = (
-                "languages.data.user.repositories.nodes"
-                f"[{repository_index}].languages.edges[{edge_index}]"
-            )
-            edge_object = require_object(edge, edge_path)
-            size = require_int(edge_object.get("size"), f"{edge_path}.size")
-            node = require_object(edge_object.get("node"), f"{edge_path}.node")
-            name = require_str(node.get("name"), f"{edge_path}.node.name")
-            color_value = node.get("color")
-
-            if size <= 0:
-                continue
-            if color_value is None:
-                color = MUTE
-            else:
-                color = require_str(color_value, f"{edge_path}.node.color")
-
-            sizes_by_name[name] = sizes_by_name.get(name, 0) + size
-            colors_by_name.setdefault(name, color)
-
-    return normalize_language_stats(sizes_by_name, colors_by_name)
+    for repository in repositories:
+        for edge in repository["languages"]["edges"]:
+            name = edge["node"]["name"]
+            sizes_by_name[name] = sizes_by_name.get(name, 0) + int(edge["size"])
+    return summarize_languages(sizes_by_name)
 
 
-def load_live_profile_data(
+def summarize_languages(
+    sizes_by_name: Dict[str, int],
+) -> List[LanguageStat]:
+    visible = sorted(
+        (item for item in sizes_by_name.items() if item[0] not in HIDDEN_LANGUAGES),
+        key=lambda item: item[1],
+        reverse=True,
+    )[:MAX_LANGUAGES]
+    total_size = sum(size for _, size in visible)
+    if total_size <= 0:
+        raise RuntimeError("GitHub returned no language byte counts for owner repositories.")
+    return [LanguageStat(name=name, percent=(size / total_size) * 100) for name, size in visible]
+
+
+def fetch_activity(
     token: str,
-) -> ProfileData:
-    contributions, calendar_weeks = fetch_contributions_and_calendar(token)
-    return ProfileData(
-        contributions=contributions,
-        languages=fetch_languages(token),
-        calendar_weeks=calendar_weeks,
+) -> Activity:
+    collection = graphql_user(token, ACTIVITY_QUERY)["contributionsCollection"]
+    calendar = collection["contributionCalendar"]
+    weeks = [[day["contributionCount"] for day in week["contributionDays"]] for week in calendar["weeks"]]
+    if not any(any(week) for week in weeks):
+        raise RuntimeError("GitHub returned an empty contribution calendar.")
+    return Activity(
+        total=calendar["totalContributions"],
+        private=collection["restrictedContributionsCount"],
+        weeks=weeks,
     )
 
 
-def load_sample_profile_data() -> ProfileData:
-    return ProfileData(
-        contributions=1372,
-        languages=normalize_language_stats(
-            sizes_by_name={
-                "Python": 382,
-                "TypeScript": 244,
-                "Dart": 171,
-                "C++": 83,
-                "HTML": 65,
-                "CSS": 55,
-            },
-            colors_by_name={
-                "Python": "#3572A5",
-                "TypeScript": "#3178c6",
-                "Dart": "#00B4AB",
-                "C++": "#f34b7d",
-                "HTML": "#e34c26",
-                "CSS": "#663399",
-            },
-        ),
-        calendar_weeks=sample_calendar_weeks(),
-    )
-
-
-def sample_calendar_weeks() -> List[List[int]]:
-    weeks: List[List[int]] = []
-    state = 20260619
-    for column in range(53):
-        week: List[int] = []
-        density = 0.08 + (column / 53) * 0.55
-        for _ in range(7):
-            state = (state * 1103515245 + 12345) & 0x7FFFFFFF
-            roll = state / 0x7FFFFFFF
-            state = (state * 1103515245 + 12345) & 0x7FFFFFFF
-            week.append(int(1 + (state / 0x7FFFFFFF) * 30) if roll < density else 0)
-        weeks.append(week)
-    return weeks
-
-
-def escape_text(
-    value: str,
-) -> str:
-    return html.escape(value, quote=False)
-
-
-def escape_attr(
-    value: str,
-) -> str:
-    return html.escape(value, quote=True)
-
-
-def format_svg_number(
-    value: float,
-) -> str:
-    formatted = f"{value:.3f}".rstrip("0").rstrip(".")
-    return "0" if formatted == "-0" else formatted
-
-
-def format_percent(
-    value: float,
-) -> str:
-    return f"{value:.1f}%"
-
-
-def font_defs(
-    font_data: str,
-) -> str:
-    return (
-        "<defs><style>\n"
-        "@font-face { font-family:'Lex'; src:url(data:font/woff2;base64,"
-        f"{font_data}) format('woff2'); font-weight:100 900; font-style:normal; }}\n"
-        "text { font-family:'Lex', system-ui, -apple-system, sans-serif; }\n"
-        "</style></defs>"
-    )
-
-
-def svg_open(
+def svg_document(
     width: int,
     height: int,
-    aria_label: str,
+    label: str,
     font_data: str,
+    body: List[str],
+    extra_css: str = "",
 ) -> str:
-    return (
-        f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" '
-        f'height="{height}" viewBox="0 0 {width} {height}" role="img" '
-        f'aria-label="{escape_attr(aria_label)}">\n'
-        f"  {font_defs(font_data)}"
+    return "\n".join(
+        [
+            f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width} {height}" '
+            f'width="{width}" height="{height}" role="img" aria-label="{html.escape(label, quote=True)}">',
+            "<style>",
+            f"@font-face{{font-family:'Google Sans Flex';src:url(data:font/woff2;base64,{font_data}) format('woff2');"
+            "font-weight:100 900;}",
+            "text{font-family:'Google Sans Flex',system-ui,-apple-system,sans-serif;}",
+            extra_css,
+            "</style>",
+            *body,
+            "</svg>",
+        ]
     )
 
 
-def svg_text(
-    x: float,
-    y: float,
-    font_size: float,
-    fill: str,
-    font_weight: int,
+def text_node(
+    x: int,
+    y: int,
     content: str,
-    letter_spacing: Optional[float] = None,
-    text_anchor: Optional[str] = None,
+    size: int,
+    fill: str,
+    weight: int = 400,
+    tracking: float = 0.0,
 ) -> str:
-    attributes = [
-        f'x="{format_svg_number(x)}"',
-        f'y="{format_svg_number(y)}"',
-        f'font-size="{format_svg_number(font_size)}"',
-        f'font-weight="{font_weight}"',
-        f'fill="{fill}"',
-    ]
-    if letter_spacing is not None:
-        attributes.append(f'letter-spacing="{format_svg_number(letter_spacing)}"')
-    if text_anchor is not None:
-        attributes.append(f'text-anchor="{escape_attr(text_anchor)}"')
-    return f"  <text {' '.join(attributes)}>{escape_text(content)}</text>"
-
-
-def build_banner_svg(
-    font_data: str,
-) -> str:
-    parts = [
-        svg_open(
-            width=1200,
-            height=360,
-            aria_label=(
-                "Ravi Krishna, Product Manager. I design the boundaries between products."
-            ),
-            font_data=font_data,
-        ),
-        f'  <rect width="1200" height="360" fill="{BG}"/>',
-        "",
-        svg_text(
-            x=64,
-            y=89,
-            font_size=14,
-            fill=MUTE,
-            font_weight=600,
-            content="PRODUCT MANAGER · COLLIGENCE",
-            letter_spacing=3,
-        ),
-        "",
-        (
-            f'  <text x="60" y="198" font-size="74" font-weight="700" '
-            f'letter-spacing="-2" fill="{INK}">I design the '
-            f'<tspan fill="{ORANGE}">boundaries</tspan></text>'
-        ),
-        svg_text(
-            x=60,
-            y=274,
-            font_size=74,
-            fill=INK,
-            font_weight=700,
-            content="between products.",
-            letter_spacing=-2,
-        ),
-        "",
-        svg_text(
-            x=64,
-            y=328,
-            font_size=16,
-            fill=MUTE,
-            font_weight=450,
-            content=(
-                "the protocols, permissions, and identity layers that let separate apps "
-                "work together"
-            ),
-        ),
-        "</svg>",
-    ]
-    return "\n".join(parts)
-
-
-def build_building_svg(
-    font_data: str,
-) -> str:
-    rows = [
-        (
-            "Aikyat Mail",
-            "40+ providers · 92.7% recall@10",
-            (
-                "AI email client across Gmail, Outlook, and 40+ providers, built solo. "
-                "FastAPI · pgvector · Flutter."
-            ),
-        ),
-        (
-            "The reference-card protocol",
-            "the banner above",
-            (
-                "I designed the spec: a cited reference opens in the reader's "
-                "permissions, never the sender's."
-            ),
-        ),
-        (
-            "Throughline",
-            "0 ACL leaks @ 100k · 0.987 recall",
-            "Permission-safe semantic search. The nearest neighbor is denied if it isn't yours.",
-        ),
-    ]
-    parts = [
-        svg_open(
-            width=1200,
-            height=396,
-            aria_label=(
-                "What Ravi is building: Aikyat Mail, the reference-card protocol, Throughline"
-            ),
-            font_data=font_data,
-        ),
-        f'  <rect width="1200" height="396" fill="{BG}"/>',
-        svg_text(
-            x=64,
-            y=56,
-            font_size=13,
-            fill=MUTE,
-            font_weight=600,
-            content="CURRENTLY BUILDING",
-            letter_spacing=3,
-        ),
-    ]
-
-    y = 118
-    for index, (name, metric, description) in enumerate(rows):
-        parts.extend(
-            [
-                svg_text(
-                    x=64,
-                    y=y,
-                    font_size=27,
-                    fill=INK,
-                    font_weight=700,
-                    content=name,
-                    letter_spacing=-0.5,
-                ),
-                svg_text(
-                    x=1136,
-                    y=y - 2,
-                    font_size=14,
-                    fill=ORANGE,
-                    font_weight=500,
-                    content=metric,
-                    text_anchor="end",
-                ),
-                svg_text(
-                    x=64,
-                    y=y + 28,
-                    font_size=15,
-                    fill=MUTE,
-                    font_weight=450,
-                    content=description,
-                ),
-            ]
-        )
-        if index < len(rows) - 1:
-            parts.append(
-                f'  <rect x="64" y="{y + 54}" width="1072" height="1" fill="{HAIR}"/>'
-            )
-        y += 96
-
-    parts.append("</svg>")
-    return "\n".join(parts)
-
-
-def build_stats_svg(
-    profile_data: ProfileData,
-    font_data: str,
-) -> str:
-    stats = [
-        (f"{profile_data.contributions:,}", "contributions, last year"),
-        (INSTALLS, "moonlight-ai installs"),
-        (YEARS, "years shipping, since 2021"),
-    ]
-    parts = [
-        svg_open(
-            width=1200,
-            height=212,
-            aria_label=(
-                f"By the numbers: {profile_data.contributions:,} contributions last year, "
-                f"{INSTALLS} moonlight-ai installs, {YEARS} years shipping"
-            ),
-            font_data=font_data,
-        ),
-        f'  <rect width="1200" height="212" fill="{BG}"/>',
-        svg_text(
-            x=64,
-            y=58,
-            font_size=13,
-            fill=MUTE,
-            font_weight=600,
-            content="BY THE NUMBERS",
-            letter_spacing=3,
-        ),
-    ]
-
-    for (number, label), x in zip(stats, [64, 458, 852]):
-        parts.extend(
-            [
-                svg_text(
-                    x=x,
-                    y=146,
-                    font_size=58,
-                    fill=ORANGE,
-                    font_weight=700,
-                    content=number,
-                    letter_spacing=-1.5,
-                ),
-                svg_text(
-                    x=x + 2,
-                    y=176,
-                    font_size=14,
-                    fill=MUTE,
-                    font_weight=450,
-                    content=label,
-                ),
-            ]
-        )
-
-    parts.append("</svg>")
-    return "\n".join(parts)
-
-
-def build_language_bar_segments(
-    languages: List[LanguageStat],
-) -> List[str]:
-    bar_x = 64.0
-    bar_y = 92.0
-    bar_width = 1072.0
-    bar_height = 18.0
-    gap = 2.0 if len(languages) > 1 else 0.0
-    color_width = bar_width - (gap * (len(languages) - 1))
-    total_size = sum(language.size for language in languages)
-    if total_size <= 0:
-        raise RuntimeError("Cannot render language bar with zero total size.")
-
-    parts = [
-        "  <clipPath id=\"language-bar-clip\">",
-        (
-            f'    <rect x="{format_svg_number(bar_x)}" y="{format_svg_number(bar_y)}" '
-            f'width="{format_svg_number(bar_width)}" height="{format_svg_number(bar_height)}" '
-            f'rx="{format_svg_number(bar_height / 2)}" ry="{format_svg_number(bar_height / 2)}"/>'
-        ),
-        "  </clipPath>",
-        '  <g clip-path="url(#language-bar-clip)">',
-        f'    <rect x="64" y="92" width="1072" height="18" fill="{BG}"/>',
-    ]
-
-    consumed_color_width = 0.0
-    for index, language in enumerate(languages):
-        if index == len(languages) - 1:
-            segment_width = color_width - consumed_color_width
-        else:
-            segment_width = color_width * (language.size / total_size)
-        segment_x = bar_x + consumed_color_width + (gap * index)
-        parts.append(
-            f'    <rect x="{format_svg_number(segment_x)}" y="{format_svg_number(bar_y)}" '
-            f'width="{format_svg_number(segment_width)}" height="{format_svg_number(bar_height)}" '
-            f'fill="{escape_attr(language.color)}"/>'
-        )
-        consumed_color_width += segment_width
-
-    parts.append("  </g>")
-    return parts
-
-
-def build_language_legend(
-    languages: List[LanguageStat],
-) -> List[str]:
-    if not languages:
-        raise RuntimeError("Cannot render language legend without languages.")
-
-    slot_width = 1072.0 / len(languages)
-    parts: List[str] = []
-    for index, language in enumerate(languages):
-        legend_x = 64.0 + (slot_width * index)
-        text_x = legend_x + 18.0
-        label = escape_text(language.name)
-        percent = escape_text(format_percent(language.percent))
-        parts.extend(
-            [
-                (
-                    f'  <circle cx="{format_svg_number(legend_x + 5)}" cy="145" r="5" '
-                    f'fill="{escape_attr(language.color)}"/>'
-                ),
-                (
-                    f'  <text x="{format_svg_number(text_x)}" y="150" font-size="14" '
-                    f'font-weight="450" fill="{INK}">{label} '
-                    f'<tspan fill="{MUTE}">{percent}</tspan></text>'
-                ),
-            ]
-        )
-    return parts
-
-
-def build_languages_svg(
-    profile_data: ProfileData,
-    font_data: str,
-) -> str:
-    language_summary = ", ".join(
-        f"{language.name} {format_percent(language.percent)}"
-        for language in profile_data.languages
+    return (
+        f'<text x="{x}" y="{y}" font-size="{size}" font-weight="{weight}" fill="{fill}" '
+        f'letter-spacing="{tracking}">{html.escape(content)}</text>'
     )
-    parts = [
-        svg_open(
-            width=1200,
-            height=196,
-            aria_label=f"Languages: {language_summary}",
-            font_data=font_data,
-        ),
-        f'  <rect width="1200" height="196" fill="{BG}"/>',
-        svg_text(
-            x=64,
-            y=58,
-            font_size=13,
-            fill=MUTE,
-            font_weight=600,
-            content="LANGUAGES",
-            letter_spacing=3,
-        ),
-    ]
-    parts.extend(build_language_bar_segments(profile_data.languages))
-    parts.extend(build_language_legend(profile_data.languages))
-    parts.append("</svg>")
-    return "\n".join(parts)
 
 
-# Spaceship-route panel (frontend-design pass). GitHub renders SVGs as <img>, so
-# all motion is baked CSS. A little spaceship flies the snake's serpentine route
-# through the real green graph (row by row, banking at each turn), igniting every
-# green day into a spring-born, slowly rotating Gemini star as it passes over it.
-# A faint aurora bloom under the active cluster adds depth; the loop exhales back to
-# green left-to-right.
-SH_EMPTY: str = "#161b22"
-SH_GREENS: List[str] = ["#0e4429", "#006d32", "#26a641", "#39d353"]
-SH_PALETTE: List[str] = ["#4285F4", "#7C6CF0", "#C56BB0", "#E8769A"]
-SH_W: int = 1200
-SH_H: int = 260
-SH_PITCH: int = 21
-SH_CELL: int = 15
-SH_ORIGIN_X: int = 44
-SH_ORIGIN_Y: int = 58
-SH_ROWS: int = 7
-SH_PERIOD_S: float = 14.0
-SH_SWEEP_TOTAL: float = 0.66
-SH_ENTRY_W: float = 0.4
-SH_CONN_W: float = 0.18
-SH_SHIP_SCALE: float = 1.3
-SH_LEVEL_RADIUS: Dict[int, float] = {0: 8.5, 1: 9.5, 2: 10.5, 3: 11.5}
+def text_lines(
+    lines: List[str],
+    x: int,
+    y: int,
+    line_height: int,
+    size: int,
+    fill: str,
+) -> List[str]:
+    return [text_node(x, y + index * line_height, line, size, fill) for index, line in enumerate(lines)]
 
 
-def ship_level(
+def heat_color(
     count: int,
-) -> int:
-    if count <= 0:
-        return -1
-    if count <= 3:
-        return 0
-    if count <= 9:
-        return 1
-    if count <= 29:
-        return 2
-    return 3
-
-
-def ship_lerp_hex(
-    a: str,
-    b: str,
-    t: float,
+    theme: Theme,
 ) -> str:
-    av = [int(a[i : i + 2], 16) for i in (1, 3, 5)]
-    bv = [int(b[i : i + 2], 16) for i in (1, 3, 5)]
-    return "#" + "".join(f"{round(x + (y - x) * t):02x}" for x, y in zip(av, bv))
+    return theme.heat[sum(count >= threshold for threshold in INTENSITY_THRESHOLDS)]
 
 
-def ship_color(
-    col: int,
-    row: int,
-) -> str:
-    cycle = 11.0
-    frac = ((col + row * 0.7) % cycle) / cycle
-    palette = SH_PALETTE + [SH_PALETTE[0]]
-    span = len(palette) - 1
-    pos = frac * span
-    i = min(int(pos), span - 1)
-    return ship_lerp_hex(palette[i], palette[i + 1], pos - i)
-
-
-def ship_star_path(
-    radius: float,
-    pinch: float = 0.12,
-) -> str:
-    r = round(radius, 1)
-    c = round(radius * pinch, 1)
-    return f"M0,{-r}Q{c},{-c} {r},0Q{c},{c} 0,{r}Q{-c},{c} {-r},0Q{-c},{-c} 0,{-r}Z"
-
-
-def ship_schedule(
-    cols: int,
-) -> Tuple[List[float], float, List[Tuple[float, float, float]]]:
-    x_left = SH_ORIGIN_X + SH_CELL / 2
-    x_right = SH_ORIGIN_X + (cols - 1) * SH_PITCH + SH_CELL / 2
-
-    def y(r: int) -> float:
-        return SH_ORIGIN_Y + r * SH_PITCH + SH_CELL / 2
-
-    total_w = SH_ENTRY_W + SH_ROWS * 1.0 + (SH_ROWS - 1) * SH_CONN_W
-    unit = SH_SWEEP_TOTAL / total_w
-    waypoints: List[Tuple[float, float, float]] = [(0.0, -170.0, y(0))]
-    row_starts: List[float] = []
-    p = SH_ENTRY_W * unit
-    waypoints.append((p, x_left, y(0)))
-    for r in range(SH_ROWS):
-        row_starts.append(p)
-        x_end = x_right if r % 2 == 0 else x_left
-        p += unit
-        waypoints.append((p, x_end, y(r)))
-        if r < SH_ROWS - 1:
-            p += SH_CONN_W * unit
-            waypoints.append((p, x_end, y(r + 1)))
-    waypoints.append((SH_SWEEP_TOTAL + 0.06, SH_W + 170.0, y(SH_ROWS - 1)))
-    waypoints.append((1.0, SH_W + 170.0, y(SH_ROWS - 1)))
-    return row_starts, unit, waypoints
-
-
-def ship_flip_keyframes(
-    row_starts: List[float],
-    unit: float,
-) -> str:
-    stops = ["0%{transform:scaleX(1)}"]
-    for r in range(SH_ROWS):
-        sx = 1 if r % 2 == 0 else -1
-        stops.append(f"{row_starts[r] * 100:.1f}%{{transform:scaleX({sx})}}")
-        stops.append(f"{(row_starts[r] + unit) * 100:.1f}%{{transform:scaleX({sx})}}")
-    stops.append("100%{transform:scaleX(1)}")
-    return "@keyframes flip{" + "".join(stops) + "}"
-
-
-def ship_art() -> str:
-    return (
-        '<ellipse cx="-3" cy="2" rx="30" ry="15" fill="url(#sg)"/>'
-        '<path class="flame" d="M-19,-3.4 L-37,0 L-19,3.4 Z" fill="url(#fl)"/>'
-        '<path d="M-7,7 L-14,13 L-1,7 Z" fill="#8893ab"/>'
-        '<path d="M-7,-7 L-16,-15 L-1,-7 Z" fill="#a7b2cb"/>'
-        '<path d="M22,0 C13,-9 -9,-10 -18,-6 C-22,-4 -22,4 -18,6 C-9,10 13,9 22,0 Z" '
-        'fill="url(#hull)" stroke="#e7edfa" stroke-width="0.5"/>'
-        '<ellipse cx="6.5" cy="-1.6" rx="7.2" ry="3.4" fill="#6db6ff"/>'
-        '<ellipse cx="8.5" cy="-2.6" rx="2.6" ry="1.2" fill="#e6f3ff"/>'
-        '<circle cx="-9" cy="0.6" r="1.4" fill="#9aa6c0"/>'
-        '<circle cx="-3.5" cy="1" r="1.4" fill="#9aa6c0"/>'
-    )
-
-
-def build_ship_svg(
+def run_graph(
     weeks: List[List[int]],
-) -> str:
-    cols = len(weeks)
-    grid_h = (SH_ROWS - 1) * SH_PITCH + SH_CELL
-    mid_y = SH_ORIGIN_Y + grid_h / 2
-    row_starts, unit, waypoints = ship_schedule(cols)
-
-    keyframes: List[str] = []
-    cells: List[str] = []
-    empties: List[str] = []
-    filled_xs: List[float] = []
-    idx = 0
-    for col, week in enumerate(weeks):
-        cx = SH_ORIGIN_X + col * SH_PITCH
-        psi = (0.80 + (col / cols) * 0.12) * 100
+    theme: Theme,
+    y: int,
+    width: int,
+    radius: int,
+) -> Tuple[List[str], int]:
+    """Draw active days lighting up as one path walks through them in date order."""
+    x = 3
+    pitch = width / len(weeks)
+    cell = pitch * 0.84
+    active: List[Tuple[float, float, int]] = []
+    nodes: List[str] = []
+    for column, week in enumerate(weeks):
         for row, count in enumerate(week):
-            cy = SH_ORIGIN_Y + row * SH_PITCH
-            level = ship_level(count)
-            if level < 0:
-                empties.append(
-                    f'<rect x="{cx}" y="{cy}" width="{SH_CELL}" height="{SH_CELL}" rx="3.5" fill="{SH_EMPTY}"/>'
+            cell_x = x + column * pitch
+            cell_y = y + row * pitch
+            if count:
+                active.append((cell_x, cell_y, count))
+            else:
+                nodes.append(
+                    f'<rect x="{cell_x:.1f}" y="{cell_y:.1f}" width="{cell:.1f}" height="{cell:.1f}" '
+                    f'rx="{radius}" fill="{theme.empty}"/>'
                 )
-                continue
-            frac = col / (cols - 1) if row % 2 == 0 else (cols - 1 - col) / (cols - 1)
-            phi = (row_starts[row] + frac * unit) * 100
-            keyframes.append(
-                f"@keyframes g{idx}{{0%{{opacity:1}}{phi:.1f}%{{opacity:1}}"
-                f"{phi + 2.5:.1f}%{{opacity:0}}{psi:.1f}%{{opacity:0}}"
-                f"{psi + 5:.1f}%{{opacity:1}}100%{{opacity:1}}}}"
-            )
-            keyframes.append(
-                f"@keyframes s{idx}{{0%{{opacity:0;transform:scale(.2)}}"
-                f"{phi:.1f}%{{opacity:0;transform:scale(.2)}}"
-                f"{phi + 2:.1f}%{{opacity:1;transform:scale(1.3)}}"
-                f"{phi + 4.5:.1f}%{{opacity:1;transform:scale(.93)}}"
-                f"{phi + 6.5:.1f}%{{opacity:1;transform:scale(1)}}"
-                f"{psi:.1f}%{{opacity:1;transform:scale(1)}}"
-                f"{psi + 4:.1f}%{{opacity:0;transform:scale(.4)}}"
-                f"100%{{opacity:0;transform:scale(.2)}}}}"
-            )
-            ccx = cx + SH_CELL / 2
-            ccy = cy + SH_CELL / 2
-            filled_xs.append(ccx)
-            spin = "spA" if (col + row) % 2 == 0 else "spB"
-            cells.append(
-                f'<g transform="translate({ccx:.1f},{ccy:.1f})">'
-                f'<rect class="grn" style="animation-name:g{idx}" x="{-SH_CELL / 2}" y="{-SH_CELL / 2}" '
-                f'width="{SH_CELL}" height="{SH_CELL}" rx="3.5" fill="{SH_GREENS[level]}"/>'
-                f'<g class="cw" style="animation-name:s{idx}">'
-                f'<path class="{spin}" d="{ship_star_path(SH_LEVEL_RADIUS[level])}" fill="{ship_color(col, row)}"/>'
-                f"</g></g>"
-            )
-            idx += 1
 
-    cluster_x = sum(filled_xs) / len(filled_xs) if filled_xs else SH_W / 2
-    drive_stops = "".join(
-        f"{ph * 100:.1f}%{{transform:translate({x:.1f}px,{y:.1f}px)}}" for ph, x, y in waypoints
+    centers = [(cell_x + cell / 2, cell_y + cell / 2) for cell_x, cell_y, _ in active]
+    distances = [0.0]
+    for previous, current in zip(centers, centers[1:]):
+        distances.append(distances[-1] + math.dist(previous, current))
+    route_length = distances[-1] or 1.0
+
+    for (cell_x, cell_y, count), distance in zip(active, distances):
+        delay = RUN_START_SECONDS + RUN_SECONDS * distance / route_length
+        nodes.append(
+            f'<rect class="lit" x="{cell_x:.1f}" y="{cell_y:.1f}" width="{cell:.1f}" height="{cell:.1f}" '
+            f'rx="{radius}" fill="{heat_color(count, theme)}" style="--e:{theme.empty};animation-delay:{delay:.2f}s"/>'
+        )
+
+    route = "M" + " L".join(f"{center_x:.1f} {center_y:.1f}" for center_x, center_y in centers)
+    last_x, last_y = centers[-1]
+    end_time = RUN_START_SECONDS + RUN_SECONDS
+    nodes.extend(
+        [
+            f'<path class="trace" d="{route}" fill="none" stroke="{theme.ink}" stroke-width="1.6" '
+            f'stroke-linejoin="round" pathLength="1" stroke-dasharray="1" '
+            f'style="animation-delay:{RUN_START_SECONDS}s,{end_time}s"/>',
+            f'<circle class="head" r="{cell * 0.42:.1f}" fill="{theme.ink}" '
+            f"style=\"offset-path:path('{route}');animation-delay:{RUN_START_SECONDS}s,{RUN_START_SECONDS}s\"/>",
+            f'<circle class="alive" cx="{last_x:.1f}" cy="{last_y:.1f}" r="{cell * 0.5:.1f}" fill="none" '
+            f'stroke="{theme.accent}" stroke-width="2.5" style="animation-delay:{end_time}s"/>',
+        ]
     )
-    drive = f"@keyframes drive{{{drive_stops}}}"
-    flip = ship_flip_keyframes(row_starts, unit)
-    spin_a = "@keyframes spA{0%{transform:rotate(0) scale(.95)}50%{transform:rotate(180deg) scale(1.06)}100%{transform:rotate(360deg) scale(.95)}}"
-    spin_b = "@keyframes spB{0%{transform:rotate(0) scale(1.06)}50%{transform:rotate(-180deg) scale(.95)}100%{transform:rotate(-360deg) scale(1.06)}}"
-    flick = "@keyframes flick{0%{transform:scaleX(.8);opacity:.7}100%{transform:scaleX(1.18);opacity:1}}"
-    style = (
-        "<style>"
-        f".grn{{animation-duration:{SH_PERIOD_S}s;animation-iteration-count:infinite;animation-timing-function:cubic-bezier(.4,0,.2,1)}}"
-        f".cw{{transform-box:fill-box;transform-origin:center;animation-duration:{SH_PERIOD_S}s;"
-        "animation-iteration-count:infinite;animation-timing-function:cubic-bezier(.34,1.56,.64,1)}"
-        ".spA,.spB{transform-box:fill-box;transform-origin:center}"
-        ".spA{animation:spA 15s linear infinite}.spB{animation:spB 18s linear infinite}"
-        f".comet{{animation:drive {SH_PERIOD_S}s linear infinite}}"
-        f".ship{{transform-box:fill-box;transform-origin:center;animation:flip {SH_PERIOD_S}s linear infinite}}"
-        ".flame{transform-box:fill-box;transform-origin:100% 50%;animation:flick .32s ease-in-out infinite alternate}"
-        + "".join(keyframes)
-        + drive
-        + flip
-        + spin_a
-        + spin_b
-        + flick
-        + "</style>"
+    return nodes, int(pitch * 7)
+
+
+def activity_caption(
+    activity: Activity,
+) -> str:
+    return f"My last year on GitHub. {activity.private:,} of these {activity.total:,} contributions are in private repos."
+
+
+def build_hero_desktop(
+    activity: Activity,
+    theme: Theme,
+    font_data: str,
+) -> str:
+    size = 104
+    style = f'font-size="{size}" font-weight="650" letter-spacing="{-size * 0.03}"'
+    graph_y = 262
+    graph, graph_height = run_graph(activity.weeks, theme, graph_y, DESKTOP_WIDTH - 6, 3)
+    caption_y = graph_y + graph_height + 46
+    intro_lines = textwrap.wrap(INTRO, 72)
+    intro_y = caption_y + 66
+    return svg_document(
+        DESKTOP_WIDTH,
+        intro_y + (len(intro_lines) - 1) * 44 + 30,
+        f"{HEADLINE} {activity_caption(activity)} {INTRO}",
+        font_data,
+        [
+            f'<text x="0" y="98" {style} fill="{theme.accent}"><tspan fill="{theme.ink}">I\'m Ravi.</tspan> I\'m a PM who</text>',
+            f'<text x="0" y="216" {style} fill="{theme.accent}">builds AI agents.</text>',
+            *graph,
+            text_node(0, caption_y, activity_caption(activity), 26, theme.mute),
+            *text_lines(intro_lines, 0, intro_y, 44, 32, theme.ink),
+        ],
+        HERO_MOTION_CSS,
     )
-    defs = (
-        "<defs>"
-        '<radialGradient id="cluster"><stop offset="0" stop-color="#6f6cf0" stop-opacity="0.16"/>'
-        '<stop offset="1" stop-color="#6f6cf0" stop-opacity="0"/></radialGradient>'
-        '<linearGradient id="hull" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6f8ff"/>'
-        '<stop offset="0.55" stop-color="#cdd6e8"/><stop offset="1" stop-color="#9aa6c0"/></linearGradient>'
-        '<radialGradient id="sg"><stop offset="0" stop-color="#9fb4ff" stop-opacity="0.45"/>'
-        '<stop offset="1" stop-color="#9fb4ff" stop-opacity="0"/></radialGradient>'
-        '<linearGradient id="fl" x1="1" y1="0" x2="0" y2="0"><stop offset="0" stop-color="#bdf3ff" stop-opacity="0.95"/>'
-        '<stop offset="0.5" stop-color="#7ab8ff" stop-opacity="0.5"/><stop offset="1" stop-color="#7ab8ff" stop-opacity="0"/></linearGradient>'
-        + style
-        + "</defs>"
+
+
+def build_hero_mobile(
+    activity: Activity,
+    theme: Theme,
+    font_data: str,
+) -> str:
+    size = 78
+    tracking = -size * 0.03
+    graph_y = 304
+    graph, graph_height = run_graph(activity.weeks[-MOBILE_GRAPH_WEEKS:], theme, graph_y, MOBILE_WIDTH - 6, 4)
+    caption_y = graph_y + graph_height + 48
+    caption_lines = textwrap.wrap(activity_caption(activity), 48)
+    intro_y = caption_y + len(caption_lines) * 40 + 36
+    intro_lines = textwrap.wrap(INTRO, 44)
+    return svg_document(
+        MOBILE_WIDTH,
+        intro_y + (len(intro_lines) - 1) * 46 + 28,
+        f"{HEADLINE} {activity_caption(activity)} {INTRO}",
+        font_data,
+        [
+            text_node(0, 78, "I'm Ravi.", size, theme.ink, 650, tracking),
+            text_node(0, 168, "I'm a PM who", size, theme.accent, 650, tracking),
+            text_node(0, 258, "builds AI agents.", size, theme.accent, 650, tracking),
+            *graph,
+            *text_lines(caption_lines, 0, caption_y, 40, 29, theme.mute),
+            *text_lines(intro_lines, 0, intro_y, 46, 33, theme.ink),
+        ],
+        HERO_MOTION_CSS,
     )
-    ship = (
-        f'<g class="comet"><g transform="scale({SH_SHIP_SCALE})">'
-        f'<g class="ship">{ship_art()}</g></g></g>'
-    )
+
+
+def open_arrow(
+    x: int,
+    y: int,
+    size: int,
+    color: str,
+) -> str:
     return (
-        f'<svg xmlns="http://www.w3.org/2000/svg" width="{SH_W}" height="{SH_H}" '
-        f'viewBox="0 0 {SH_W} {SH_H}" role="img" '
-        f'aria-label="A spaceship flies across my contribution graph, turning each green day into a star">'
-        f"{defs}"
-        f'<rect width="{SH_W}" height="{SH_H}" fill="{BG}"/>'
-        f'<ellipse cx="{cluster_x:.0f}" cy="{mid_y:.0f}" rx="300" ry="96" fill="url(#cluster)"/>'
-        f'<g>{"".join(empties)}</g>'
-        f'<g>{"".join(cells)}</g>'
-        f"{ship}"
-        f"</svg>"
+        f'<path d="M{x} {y} L{x + size} {y - size} M{x + size * 0.28:.1f} {y - size} L{x + size} {y - size} '
+        f'L{x + size} {y - size * 0.28:.1f}" fill="none" stroke="{color}" stroke-width="2.4" '
+        'stroke-linecap="round" stroke-linejoin="round"/>'
     )
 
 
-# Mobile variants: narrower (480px) canvases with stacked, larger-text layouts so
-# the panels stay readable when a phone scales them down. Served via <picture> with
-# a max-width media query. The graph panel is decorative and reuses the desktop SVG.
-MOBILE_WIDTH: int = 480
+def build_section_label(
+    label: str,
+    theme: Theme,
+    font_data: str,
+    width: int,
+    size: int,
+) -> str:
+    return svg_document(width, size + 34, label, font_data, [text_node(0, size + 16, label, size, theme.accent, 600)])
 
 
-def build_banner_mobile_svg(
+def build_project_desktop(
+    project: Project,
+    theme: Theme,
     font_data: str,
 ) -> str:
-    parts = [
-        svg_open(
-            width=MOBILE_WIDTH,
-            height=292,
-            aria_label="Ravi Krishna, Product Manager. I design the boundaries between products.",
-            font_data=font_data,
-        ),
-        f'  <rect width="{MOBILE_WIDTH}" height="292" fill="{BG}"/>',
-        svg_text(
-            x=30,
-            y=48,
-            font_size=13,
-            fill=MUTE,
-            font_weight=600,
-            content="PRODUCT MANAGER · COLLIGENCE",
-            letter_spacing=2.5,
-        ),
-        f'  <text x="28" y="116" font-size="40" font-weight="700" letter-spacing="-1" fill="{INK}">I design the</text>',
-        f'  <text x="28" y="164" font-size="40" font-weight="700" letter-spacing="-1" fill="{ORANGE}">boundaries</text>',
-        f'  <text x="28" y="212" font-size="40" font-weight="700" letter-spacing="-1" fill="{INK}">between products.</text>',
-        svg_text(
-            x=30,
-            y=254,
-            font_size=14,
-            fill=MUTE,
-            font_weight=450,
-            content="the protocols, permissions, and identity layers",
-        ),
-        svg_text(
-            x=30,
-            y=276,
-            font_size=14,
-            fill=MUTE,
-            font_weight=450,
-            content="that let separate apps work together",
-        ),
-        "</svg>",
+    baseline = 38
+    line_height = 37
+    lines = textwrap.wrap(project.text, DESKTOP_ROW_CHARS)
+    body = [
+        text_node(0, baseline, project.name, 27, theme.ink, 600),
+        *text_lines(lines, DESKTOP_ROW_TEXT_X, baseline, line_height, 26, theme.mute),
     ]
-    return "\n".join(parts)
+    if project.public:
+        body.append(open_arrow(250, baseline - 2, 13, theme.accent))
+    height = baseline + (len(lines) - 1) * line_height + 30
+    return svg_document(DESKTOP_WIDTH, height, f"{project.name}: {project.text}", font_data, body)
 
 
-def build_stats_mobile_svg(
-    profile_data: ProfileData,
+def build_project_mobile(
+    project: Project,
+    theme: Theme,
     font_data: str,
 ) -> str:
-    stats = [
-        (f"{profile_data.contributions:,}", "contributions, last year"),
-        (INSTALLS, "moonlight-ai installs"),
-        (YEARS, "years shipping, since 2021"),
+    text_y = 90
+    line_height = 41
+    lines = textwrap.wrap(project.text, MOBILE_ROW_CHARS)
+    body = [
+        text_node(0, 44, project.name, 33, theme.ink, 600),
+        *text_lines(lines, 0, text_y, line_height, 30, theme.mute),
     ]
-    parts = [
-        svg_open(
-            width=MOBILE_WIDTH,
-            height=330,
-            aria_label=(
-                f"By the numbers: {profile_data.contributions:,} contributions last year, "
-                f"{INSTALLS} moonlight-ai installs, {YEARS} years shipping"
-            ),
-            font_data=font_data,
-        ),
-        f'  <rect width="{MOBILE_WIDTH}" height="330" fill="{BG}"/>',
-        svg_text(
-            x=30,
-            y=48,
-            font_size=13,
-            fill=MUTE,
-            font_weight=600,
-            content="BY THE NUMBERS",
-            letter_spacing=2.5,
-        ),
-    ]
-    y = 118
-    for number, label in stats:
-        parts.append(
-            svg_text(
-                x=30,
-                y=y,
-                font_size=42,
-                fill=ORANGE,
-                font_weight=700,
-                content=number,
-                letter_spacing=-1,
-            )
-        )
-        parts.append(
-            svg_text(
-                x=32,
-                y=y + 26,
-                font_size=14,
-                fill=MUTE,
-                font_weight=450,
-                content=label,
-            )
-        )
-        y += 86
-    parts.append("</svg>")
-    return "\n".join(parts)
+    if project.public:
+        body.append(open_arrow(MOBILE_WIDTH - 20, 42, 15, theme.accent))
+    height = text_y + (len(lines) - 1) * line_height + 30
+    return svg_document(MOBILE_WIDTH, height, f"{project.name}: {project.text}", font_data, body)
 
 
-def build_languages_mobile_svg(
-    profile_data: ProfileData,
+def build_languages(
+    languages: List[LanguageStat],
+    theme: Theme,
     font_data: str,
+    width: int,
+    columns: int,
 ) -> str:
-    languages = profile_data.languages
-    bar_x = 30.0
-    bar_y = 72.0
-    bar_w = float(MOBILE_WIDTH - 60)
-    bar_h = 16.0
-    gap = 2.0 if len(languages) > 1 else 0.0
-    color_w = bar_w - gap * (len(languages) - 1)
-    total = sum(language.size for language in languages) or 1
-    parts = [
-        svg_open(
-            width=MOBILE_WIDTH,
-            height=212,
-            aria_label="Languages: " + ", ".join(
-                f"{language.name} {format_percent(language.percent)}" for language in languages
-            ),
-            font_data=font_data,
-        ),
-        f'  <rect width="{MOBILE_WIDTH}" height="212" fill="{BG}"/>',
-        svg_text(
-            x=30,
-            y=48,
-            font_size=13,
-            fill=MUTE,
-            font_weight=600,
-            content="LANGUAGES",
-            letter_spacing=2.5,
-        ),
-        f'  <clipPath id="mlang"><rect x="{bar_x}" y="{bar_y}" width="{bar_w}" height="{bar_h}" '
-        f'rx="{bar_h / 2}"/></clipPath>',
-        f'  <g clip-path="url(#mlang)">',
-    ]
-    consumed = 0.0
+    bar_y = 66
+    bar_height = 10
+    gap = 3
+    legend_y = 122
+    row_height = 40
+    usable_width = width - gap * (len(languages) - 1)
+    body = [text_node(0, 44, "Languages", 26, theme.accent, 600)]
+    cursor = 0.0
     for index, language in enumerate(languages):
-        seg = color_w - consumed if index == len(languages) - 1 else color_w * (language.size / total)
-        seg_x = bar_x + consumed + gap * index
-        parts.append(
-            f'    <rect x="{format_svg_number(seg_x)}" y="{format_svg_number(bar_y)}" '
-            f'width="{format_svg_number(seg)}" height="{format_svg_number(bar_h)}" '
-            f'fill="{escape_attr(language.color)}"/>'
+        color = theme.language_colors[index]
+        segment_width = usable_width * language.percent / 100
+        body.append(f'<rect x="{cursor:.2f}" y="{bar_y}" width="{segment_width:.2f}" height="{bar_height}" fill="{color}"/>')
+        cursor += segment_width + gap
+        cell_x = (index % columns) * (width // columns)
+        cell_y = legend_y + (index // columns) * row_height
+        body.append(f'<circle cx="{cell_x + 7}" cy="{cell_y - 8}" r="7" fill="{color}"/>')
+        body.append(
+            f'<text x="{cell_x + 24}" y="{cell_y}" font-size="25" fill="{theme.ink}">{html.escape(language.name)} '
+            f'<tspan fill="{theme.mute}">{language.percent:.1f}%</tspan></text>'
         )
-        consumed += seg
-    parts.append("  </g>")
-    for index, language in enumerate(languages[:6]):
-        col = 0 if index < 3 else 1
-        row = index % 3
-        lx = 30.0 + col * 224
-        ly = 120.0 + row * 30
-        parts.append(
-            f'  <circle cx="{format_svg_number(lx + 5)}" cy="{format_svg_number(ly - 4)}" r="5" '
-            f'fill="{escape_attr(language.color)}"/>'
-        )
-        parts.append(
-            f'  <text x="{format_svg_number(lx + 18)}" y="{format_svg_number(ly)}" font-size="14" '
-            f'font-weight="450" fill="{INK}">{escape_text(language.name)} '
-            f'<tspan fill="{MUTE}">{escape_text(format_percent(language.percent))}</tspan></text>'
-        )
-    parts.append("</svg>")
-    return "\n".join(parts)
+    summary = ", ".join(f"{item.name} {item.percent:.1f}%" for item in languages)
+    rows = math.ceil(len(languages) / columns)
+    return svg_document(width, legend_y + rows * row_height, f"Languages: {summary}", font_data, body)
 
 
-def build_building_mobile_svg(
+def build_panels(
+    activity: Activity,
+    languages: List[LanguageStat],
+    theme: Theme,
     font_data: str,
-) -> str:
-    rows = [
-        (
-            "Aikyat Mail",
-            "40+ providers · 92.7% recall@10",
-            [
-                "AI email client across Gmail, Outlook, and 40+",
-                "providers, built solo. FastAPI · pgvector · Flutter.",
-            ],
-        ),
-        (
-            "The reference-card protocol",
-            "the banner above",
-            [
-                "I designed the spec: a cited reference opens in",
-                "the reader's permissions, never the sender's.",
-            ],
-        ),
-        (
-            "Throughline",
-            "0 ACL leaks @ 100k · 0.987 recall",
-            [
-                "Permission-safe semantic search. The nearest",
-                "neighbor is denied if it isn't yours.",
-            ],
-        ),
-    ]
-    parts = [
-        svg_open(
-            width=MOBILE_WIDTH,
-            height=392,
-            aria_label=(
-                "Currently building: Aikyat Mail, the reference-card protocol, Throughline"
-            ),
-            font_data=font_data,
-        ),
-        f'  <rect width="{MOBILE_WIDTH}" height="392" fill="{BG}"/>',
-        svg_text(
-            x=30,
-            y=46,
-            font_size=13,
-            fill=MUTE,
-            font_weight=600,
-            content="CURRENTLY BUILDING",
-            letter_spacing=2.5,
-        ),
-    ]
-    y = 92
-    for index, (name, metric, desc_lines) in enumerate(rows):
-        parts.append(
-            svg_text(x=30, y=y, font_size=19, fill=INK, font_weight=700, content=name, letter_spacing=-0.3)
-        )
-        parts.append(
-            svg_text(x=30, y=y + 22, font_size=12.5, fill=ORANGE, font_weight=500, content=metric)
-        )
-        parts.append(
-            svg_text(x=30, y=y + 44, font_size=13, fill=MUTE, font_weight=450, content=desc_lines[0])
-        )
-        parts.append(
-            svg_text(x=30, y=y + 62, font_size=13, fill=MUTE, font_weight=450, content=desc_lines[1])
-        )
-        if index < len(rows) - 1:
-            parts.append(f'  <rect x="30" y="{y + 82}" width="{MOBILE_WIDTH - 60}" height="1" fill="{HAIR}"/>')
-        y += 100
-    parts.append("</svg>")
-    return "\n".join(parts)
-
-
-def write_svg(
-    output_path: Path,
-    svg: str,
-) -> None:
-    output_path.write_text(f"{svg}\n", encoding="utf-8")
-    print(f"wrote {output_path}")
-
-
-def render_panels(
-    profile_data: ProfileData,
-    font_data: str,
-    out_dir: Path,
-) -> List[Path]:
-    out_dir.mkdir(parents=True, exist_ok=True)
-    outputs = [
-        (out_dir / "banner.svg", build_banner_svg(font_data)),
-        (out_dir / "building.svg", build_building_svg(font_data)),
-        (out_dir / "stats.svg", build_stats_svg(profile_data, font_data)),
-        (out_dir / "languages.svg", build_languages_svg(profile_data, font_data)),
-        (out_dir / "graph.svg", build_ship_svg(profile_data.calendar_weeks)),
-        (out_dir / "banner-mobile.svg", build_banner_mobile_svg(font_data)),
-        (out_dir / "stats-mobile.svg", build_stats_mobile_svg(profile_data, font_data)),
-        (out_dir / "languages-mobile.svg", build_languages_mobile_svg(profile_data, font_data)),
-        (out_dir / "building-mobile.svg", build_building_mobile_svg(font_data)),
-    ]
-
-    written_paths: List[Path] = []
-    for output_path, svg in outputs:
-        write_svg(output_path, svg)
-        written_paths.append(output_path)
-    return written_paths
+) -> Dict[str, str]:
+    panels: Dict[str, str] = {
+        f"hero-{theme.name}": build_hero_desktop(activity, theme, font_data),
+        f"hero-{theme.name}-mobile": build_hero_mobile(activity, theme, font_data),
+        f"languages-{theme.name}": build_languages(languages, theme, font_data, DESKTOP_WIDTH, 3),
+        f"languages-{theme.name}-mobile": build_languages(languages, theme, font_data, MOBILE_WIDTH, 2),
+    }
+    for label, slug in (("Now", "now"), ("Before", "before")):
+        panels[f"{slug}-{theme.name}"] = build_section_label(label, theme, font_data, DESKTOP_WIDTH, 26)
+        panels[f"{slug}-{theme.name}-mobile"] = build_section_label(label, theme, font_data, MOBILE_WIDTH, 31)
+    for project in (*NOW_PROJECTS, *BEFORE_PROJECTS):
+        panels[f"{project.slug}-{theme.name}"] = build_project_desktop(project, theme, font_data)
+        panels[f"{project.slug}-{theme.name}-mobile"] = build_project_mobile(project, theme, font_data)
+    return panels
 
 
 def main() -> int:
     args = parse_args()
-    out_dir, font_path = resolve_paths(args.out)
-    font_data = read_font_data(font_path)
     token = os.environ.get("GH_TOKEN", "").strip()
-
-    if args.require_live and not token:
-        raise RuntimeError(
-            "Live mode requires GH_TOKEN, but it is empty. Set the STATS_TOKEN secret "
-            "so private repositories are included; refusing to publish sample data."
-        )
-
-    use_sample = args.sample or not token
-
-    if use_sample:
-        print(
-            "WARNING: sample data, not real, do not publish languages.svg from sample mode",
-            file=sys.stderr,
-        )
-        profile_data = load_sample_profile_data()
-    else:
-        profile_data = load_live_profile_data(token)
-
-    render_panels(
-        profile_data=profile_data,
-        font_data=font_data,
-        out_dir=out_dir,
-    )
+    if not token:
+        raise RuntimeError("GH_TOKEN is empty. Set the STATS_TOKEN secret so private repositories are counted.")
+    font_data = read_font_data(Path(__file__).resolve().parent / "google-sans-flex.b64")
+    activity = fetch_activity(token)
+    languages = fetch_languages(token)
+    out_dir: Path = args.out.resolve()
+    out_dir.mkdir(parents=True, exist_ok=True)
+    for theme in THEMES:
+        for panel_name, svg in build_panels(activity, languages, theme, font_data).items():
+            (out_dir / f"{panel_name}.svg").write_text(f"{svg}\n", encoding="utf-8")
     return 0
 
 

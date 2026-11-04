@@ -29,18 +29,14 @@ jobs:
         continue-on-error: true
         env:
           GH_TOKEN: ${{ secrets.STATS_TOKEN }}
-        run: python3 .github/scripts/generate.py --require-live --out dist
+        run: python3 .github/scripts/generate.py --out dist
 
       - name: Fall back to last good panels if generation failed
         if: steps.gen.outcome != 'success'
         run: |
           mkdir -p dist
-          git fetch origin output || true
-          for f in banner building stats languages graph; do
-            if [ ! -s "dist/${f}.svg" ]; then
-              git show "origin/output:${f}.svg" > "dist/${f}.svg" 2>/dev/null || rm -f "dist/${f}.svg"
-            fi
-          done
+          git fetch origin output
+          git archive FETCH_HEAD | tar -x -C dist
 
       - name: Deploy to output branch
         uses: crazy-max/ghaction-github-pages@v4

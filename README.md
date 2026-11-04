@@ -1,83 +1,18 @@
-<p align="center">
-  <picture>
-    <source media="(max-width: 600px)" srcset="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/output/banner-mobile.svg" />
-    <img src="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/output/banner.svg" alt="ravi@boundary: access granted to the reader, denied to everyone else" width="100%" />
-  </picture>
+<p>
+<picture><source media="(prefers-color-scheme: dark) and (max-width: 600px)" srcset="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/output/hero-dark-mobile.svg"/><source media="(prefers-color-scheme: light) and (max-width: 600px)" srcset="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/output/hero-light-mobile.svg"/><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/output/hero-dark.svg"/><img src="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/output/hero-light.svg" alt="I'm Ravi. I'm a PM who builds AI agents. My last year on GitHub, mostly in private repos. I work at Colligence on Aikyat, an AI email and chat suite. I wrote most of the Mail backend and client before I moved into product." width="100%"/></picture>
 </p>
 
-###
+Reach me on [LinkedIn](https://www.linkedin.com/in/ravi-krishna-661704234/) or by [email](mailto:2003.ravikrishna@gmail.com).
 
-<p align="center">
-  <b>Product Manager at Colligence</b> · I design the boundaries between products:
-  <br/>the protocols, permissions, and identity layers that let separate apps work together.
-</p>
-
-###
-
-<div align="center">
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" height="44" alt="Python" />
-  <img width="12" />
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg" height="44" alt="TypeScript" />
-  <img width="12" />
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/cplusplus/cplusplus-original.svg" height="44" alt="C++" />
-  <img width="12" />
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/dart/dart-original.svg" height="44" alt="Dart" />
-  <img width="20" />
-  <img src="https://cdn.simpleicons.org/pytorch/EE4C2C" height="42" alt="PyTorch" />
-  <img width="12" />
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/fastapi/fastapi-original.svg" height="44" alt="FastAPI" />
-  <img width="12" />
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg" height="44" alt="PostgreSQL" />
-  <img width="20" />
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" height="44" alt="React" />
-  <img width="12" />
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/flutter/flutter-original.svg" height="44" alt="Flutter" />
-  <img width="20" />
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg" height="44" alt="Docker" />
-  <img width="12" />
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/kubernetes/kubernetes-plain.svg" height="44" alt="Kubernetes" />
-  <img width="12" />
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linux/linux-original.svg" height="44" alt="Linux" />
-</div>
-
-###
-
-<p align="center">
-  <a href="https://www.linkedin.com/in/ravi-krishna-661704234/"><img src="https://img.shields.io/badge/LinkedIn-0d1117?style=flat-square&logo=linkedin&logoColor=D97757" alt="LinkedIn" /></a>
-  <a href="https://github.com/Ravi2k3"><img src="https://img.shields.io/badge/GitHub-0d1117?style=flat-square&logo=github&logoColor=D97757" alt="GitHub" /></a>
-  <a href="mailto:2003.ravikrishna@gmail.com"><img src="https://img.shields.io/badge/Email-0d1117?style=flat-square&logo=gmail&logoColor=D97757" alt="Email" /></a>
-  <a href="https://pypi.org/project/moonlight-ai/"><img src="https://img.shields.io/pepy/dt/moonlight-ai?style=flat-square&color=D97757&labelColor=0d1117&label=moonlight-ai%20installs" alt="MoonLight installs" /></a>
-</p>
-
-###
-
-<p align="center">
-  <picture>
-    <source media="(max-width: 600px)" srcset="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/output/stats-mobile.svg" />
-    <img src="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/output/stats.svg" alt="By the numbers: contributions last year, moonlight-ai installs, years shipping since 2021" width="100%" />
-  </picture>
-</p>
-
-###
-
-<p align="center">
-  <picture>
-    <source media="(max-width: 600px)" srcset="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/output/languages-mobile.svg" />
-    <img src="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/output/languages.svg" alt="Language split across owner repositories, private repos included, Dart excluded" width="100%" />
-  </picture>
-</p>
-
-###
-
-<p align="center">
-  <picture>
-    <source media="(max-width: 600px)" srcset="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/output/building-mobile.svg" />
-    <img src="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/output/building.svg" alt="Currently building: Aikyat Mail, the reference-card protocol, Throughline" width="100%" />
-  </picture>
-</p>
-
-###
-
-<p align="center">
-  <img src="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/output/graph.svg" alt="A spaceship flies across my contribution graph, turning each green day into a star" width="100%" />
+<p>
+<picture><source media="(prefers-color-scheme: dark) and (max-width: 600px)" srcset="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/output/now-dark-mobile.svg"/><source media="(prefers-color-scheme: light) and (max-width: 600px)" srcset="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/output/now-light-mobile.svg"/><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/output/now-dark.svg"/><img src="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/output/now-light.svg" alt="Now" width="100%"/></picture>
+<picture><source media="(prefers-color-scheme: dark) and (max-width: 600px)" srcset="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/output/aikyat-mail-dark-mobile.svg"/><source media="(prefers-color-scheme: light) and (max-width: 600px)" srcset="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/output/aikyat-mail-light-mobile.svg"/><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/output/aikyat-mail-dark.svg"/><img src="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/output/aikyat-mail-light.svg" alt="Aikyat Mail: search your inbox in plain English across Gmail, Outlook, Yahoo and any IMAP account. The first version used one retriever and kept missing emails people expected to find, so we replaced it." width="100%"/></picture>
+<picture><source media="(prefers-color-scheme: dark) and (max-width: 600px)" srcset="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/output/aikyat-chat-dark-mobile.svg"/><source media="(prefers-color-scheme: light) and (max-width: 600px)" srcset="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/output/aikyat-chat-light-mobile.svg"/><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/output/aikyat-chat-dark.svg"/><img src="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/output/aikyat-chat-light.svg" alt="Aikyat Chat: pre-release. We nearly folded it into Mail. I argued to keep it separate, with a widget inside Mail, because the AI agent that works across our products has to live somewhere." width="100%"/></picture>
+<picture><source media="(prefers-color-scheme: dark) and (max-width: 600px)" srcset="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/output/reference-cards-dark-mobile.svg"/><source media="(prefers-color-scheme: light) and (max-width: 600px)" srcset="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/output/reference-cards-light-mobile.svg"/><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/output/reference-cards-dark.svg"/><img src="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/output/reference-cards-light.svg" alt="Reference cards: cite an email in chat and the other person gets a live card, which opens with their own permissions. Every new Aikyat product has to integrate this way." width="100%"/></picture>
+<picture><source media="(prefers-color-scheme: dark) and (max-width: 600px)" srcset="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/output/before-dark-mobile.svg"/><source media="(prefers-color-scheme: light) and (max-width: 600px)" srcset="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/output/before-light-mobile.svg"/><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/output/before-dark.svg"/><img src="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/output/before-light.svg" alt="Before" width="100%"/></picture>
+<a href="https://github.com/ecstra/moonlight"><picture><source media="(prefers-color-scheme: dark) and (max-width: 600px)" srcset="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/output/moonlight-dark-mobile.svg"/><source media="(prefers-color-scheme: light) and (max-width: 600px)" srcset="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/output/moonlight-light-mobile.svg"/><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/output/moonlight-dark.svg"/><img src="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/output/moonlight-light.svg" alt="MoonLight: agent SDK from Automa, the startup I co-founded with Gautam. I led the product and the agent loop, where the agent writes its own next action. Gautam published it. It's sunset now because the big providers' own SDKs do more." width="100%"/></picture></a>
+<a href="https://github.com/Ravi2k3/ai-campaign-personalization"><picture><source media="(prefers-color-scheme: dark) and (max-width: 600px)" srcset="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/output/lv-outreach-dark-mobile.svg"/><source media="(prefers-color-scheme: light) and (max-width: 600px)" srcset="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/output/lv-outreach-light-mobile.svg"/><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/output/lv-outreach-dark.svg"/><img src="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/output/lv-outreach-light.svg" alt="LV Outreach: cold email tool that writes each email from the lead and your product docs. A second model call rejects drafts with AI tells, like em dashes and filler adjectives, and makes it try again." width="100%"/></picture></a>
+<picture><source media="(prefers-color-scheme: dark) and (max-width: 600px)" srcset="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/output/facespace-dark-mobile.svg"/><source media="(prefers-color-scheme: light) and (max-width: 600px)" srcset="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/output/facespace-light-mobile.svg"/><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/output/facespace-dark.svg"/><img src="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/output/facespace-light.svg" alt="FaceSpace: 200+ video streams on one GPU, using multiprocessing to get around NVIDIA's single-process limit. My GPU funding request got rejected, so I found an RTX 3090 on campus and won the admins over with a demo." width="100%"/></picture>
+<picture><source media="(prefers-color-scheme: dark) and (max-width: 600px)" srcset="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/output/berghain-dark-mobile.svg"/><source media="(prefers-color-scheme: light) and (max-width: 600px)" srcset="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/output/berghain-light-mobile.svg"/><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/output/berghain-dark.svg"/><img src="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/output/berghain-light.svg" alt="Berghain Challenge: 70th of 1,330 on the Listen Labs leaderboard. Linear programming to predict rejections, plus heuristics recalculated every 50 admits." width="100%"/></picture>
+<picture><source media="(prefers-color-scheme: dark) and (max-width: 600px)" srcset="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/output/languages-dark-mobile.svg"/><source media="(prefers-color-scheme: light) and (max-width: 600px)" srcset="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/output/languages-light-mobile.svg"/><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/output/languages-dark.svg"/><img src="https://raw.githubusercontent.com/Ravi2k3/Ravi2k3/output/languages-light.svg" alt="Languages across my repositories, private repos included, Dart left out." width="100%"/></picture>
 </p>
